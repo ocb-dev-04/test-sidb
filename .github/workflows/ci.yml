@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (.NET 8)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('src/backend/Directory.Packages.props') }}
+      - run: dotnet restore SB.Solicitudes.sln
+      - run: dotnet build SB.Solicitudes.sln --no-restore -c Release
+      - name: Pruebas unitarias y de arquitectura
+        run: dotnet test SB.Solicitudes.sln --no-build -c Release --filter "Category!=Integration"
+      - name: Pruebas de integración (SQL Server en Testcontainers)
+        run: dotnet test tests/SB.Solicitudes.Servicios.IntegrationTests --no-build -c Release
+
+  frontend:
+    name: Frontend (React + TypeScript)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

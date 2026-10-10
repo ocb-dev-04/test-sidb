@@ -1,0 +1,17 @@
+# Contexto de construcción de la API (raíz del repositorio)
+Dev-Sr/
+.git/
+.github/
+.claude/
+docs/
+database/
+src/frontend/
+**/bin/
+**/obj/
+**/logs/
+**/simulated-mail/
+**/Data/*.db
+**/Data/*.db-*
+src/backend/tests/
+**/*.user
+**/.vs/
