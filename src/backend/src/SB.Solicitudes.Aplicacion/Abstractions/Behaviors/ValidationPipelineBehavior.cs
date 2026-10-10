@@ -1,0 +1,50 @@
+using FluentValidation;
+using FluentValidation.Results;
+using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
+using SB.Solicitudes.Dominio.Common;
+
+namespace SB.Solicitudes.Aplicacion.Abstractions.Behaviors;
+
+internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
+    : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
+{
+    public async Task<Result<TResponse>> HandleAsync(
+        TRequest request,
+        RequestPipelineNext<TResponse> next,
+        CancellationToken cancellationToken)
+    {
+        IValidator<TRequest>[] requestValidators = validators.ToArray();
+        if (requestValidators.Length == 0)
+        {
+            return await next();
+        }
+
+        ValidationContext<TRequest> context = new(request);
+        List<ValidationFailure> failures = [];
+        foreach (IValidator<TRequest> validator in requestValidators)
+        {
+            ValidationResult validationResult = await validator.ValidateAsync(context, cancellationToken);
+            failures.AddRange(validationResult.Errors);
+        }
+
+        if (failures.Count == 0)
+        {
+            return await next();
+        }
+
+        Dictionary<string, string[]> errors = failures
+            .GroupBy(failure => ToCamelCase(failure.PropertyName), StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(failure => failure.ErrorMessage).Distinct(StringComparer.Ordinal).ToArray(),
+                StringComparer.Ordinal);
+
+        return Result.Failure<TResponse>(new ValidationError(errors));
+    }
+
+    private static string ToCamelCase(string propertyName)
+        => string.IsNullOrEmpty(propertyName) || char.IsLower(propertyName[0])
+            ? propertyName
+            : string.Concat(char.ToLowerInvariant(propertyName[0]).ToString(), propertyName[1..]);
+}

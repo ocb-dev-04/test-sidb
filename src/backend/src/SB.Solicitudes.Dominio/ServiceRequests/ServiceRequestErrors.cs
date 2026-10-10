@@ -22,6 +22,8 @@ public static class ServiceRequestErrors
 
     public static readonly Error INTERNAL_COMMENT_NOT_ALLOWED = Error.Forbidden("serviceRequest.internalCommentNotAllowed", "Requesters cannot add internal comments.");
 
+    public static readonly Error MANAGEMENT_REQUIRED = Error.Forbidden("serviceRequest.managementRequired", "Only administrators and analysts can manage service requests.");
+
     public static readonly Error CONCURRENCY_CONFLICT = Error.Conflict("serviceRequest.concurrencyConflict", "The service request was modified by another user. Reload and try again.");
 
     public static Error InvalidTransition(ServiceRequestStatus from, ServiceRequestStatus to)

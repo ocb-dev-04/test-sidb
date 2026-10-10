@@ -37,6 +37,7 @@ public sealed class NamingConventionTests
             .SelectMany(type => type.GetFields(STATIC_FIELDS))
             .Where(field => field.IsLiteral || field.IsInitOnly)
             .Where(field => !field.IsDefined(typeof(CompilerGeneratedAttribute), inherit: false))
+            .Where(field => !field.IsDefined(typeof(GeneratedCodeAttribute), inherit: false))
             .Where(field => !UPPER_CASE_PATTERN.IsMatch(field.Name))
             .Select(field => $"{field.DeclaringType!.FullName}.{field.Name}")
             .ToArray();
