@@ -90,6 +90,8 @@ dotnet_naming_rule.locals_camel_case.severity = error
 dotnet_diagnostic.IDE1006.severity = error
 # CA1707 prohíbe '_' en miembros públicos y choca con las constantes en MAYÚSCULA que exige la especificación
 dotnet_diagnostic.CA1707.severity = none
+# CA1716 protege a consumidores en VB.NET; la solución es solo C#
+dotnet_diagnostic.CA1716.severity = none
 
 [{**/Migrations/*.cs,**/obj/**/*.cs}]
 generated_code = true
