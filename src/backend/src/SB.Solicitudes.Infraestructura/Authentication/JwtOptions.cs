@@ -1,4 +1,6 @@
+using System.Text;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SB.Solicitudes.Infraestructura.Authentication;
 
@@ -45,6 +47,11 @@ internal sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
 
         return failures.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(failures);
     }
+}
+
+public static class JwtSigningKey
+{
+    public static SymmetricSecurityKey Create(string signingKey) => new(Encoding.UTF8.GetBytes(signingKey));
 }
 
 public static class ApplicationClaimTypes

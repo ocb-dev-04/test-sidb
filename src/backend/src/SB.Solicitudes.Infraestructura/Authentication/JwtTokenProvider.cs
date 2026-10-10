@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -39,8 +38,6 @@ internal sealed class JwtTokenProvider(IOptions<JwtOptions> options, TimeProvide
         return new AccessToken(TOKEN_HANDLER.CreateToken(descriptor), expiresOnUtc);
     }
 
-    public static SymmetricSecurityKey CreateSecurityKey(string signingKey) => new(Encoding.UTF8.GetBytes(signingKey));
-
     private static SigningCredentials CreateSigningCredentials(string signingKey)
-        => new(CreateSecurityKey(signingKey), SecurityAlgorithms.HmacSha256);
+        => new(JwtSigningKey.Create(signingKey), SecurityAlgorithms.HmacSha256);
 }

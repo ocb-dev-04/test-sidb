@@ -44,12 +44,10 @@ public static class DependencyInjection
         services.AddOptions<DatabaseOptions>().Bind(configuration.GetSection(DatabaseOptions.SECTION_NAME));
         services.AddSingleton<SlowQueryInterceptor>();
 
-        string connectionString = configuration.GetConnectionString(DatabaseOptions.CONNECTION_STRING_NAME)
-            ?? throw new InvalidOperationException($"Connection string '{DatabaseOptions.CONNECTION_STRING_NAME}' is not configured.");
-
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
             DatabaseOptions databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+            string connectionString = RequiredConnectionString(serviceProvider, DatabaseOptions.CONNECTION_STRING_NAME);
             options
                 .UseSqlServer(connectionString, sqlServer =>
                 {
@@ -109,10 +107,10 @@ public static class DependencyInjection
                 options.ExcelFilePath = ResolvePath(options.ExcelFilePath, environment)!;
             });
 
-        string sqliteConnectionString = configuration.GetConnectionString(GovernmentEntityStorageOptions.SQLITE_CONNECTION_STRING_NAME)
-            ?? throw new InvalidOperationException($"Connection string '{GovernmentEntityStorageOptions.SQLITE_CONNECTION_STRING_NAME}' is not configured.");
         services.AddDbContext<GovernmentEntitiesDbContext>((serviceProvider, options) =>
-            options.UseSqlite(ResolveSqliteConnectionString(sqliteConnectionString, serviceProvider.GetRequiredService<IHostEnvironment>())));
+            options.UseSqlite(ResolveSqliteConnectionString(
+                RequiredConnectionString(serviceProvider, GovernmentEntityStorageOptions.SQLITE_CONNECTION_STRING_NAME),
+                serviceProvider.GetRequiredService<IHostEnvironment>())));
 
         services.AddSingleton<TextFileGovernmentEntityStore>();
         services.AddKeyedSingleton<IGovernmentEntityReader>(GovernmentEntityDataSource.TextFile, (serviceProvider, _) => serviceProvider.GetRequiredService<TextFileGovernmentEntityStore>());
@@ -127,6 +125,11 @@ public static class DependencyInjection
         services.AddScoped<IGovernmentEntityStoreFactory, GovernmentEntityStoreFactory>();
         return services;
     }
+
+    // Se resuelve al crear el contexto (no al registrar) para respetar configuraciones aplicadas después, como en las pruebas.
+    private static string RequiredConnectionString(IServiceProvider serviceProvider, string name)
+        => serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(name)
+            ?? throw new InvalidOperationException($"Connection string '{name}' is not configured.");
 
     private static string? ResolvePath(string? path, IHostEnvironment environment)
         => string.IsNullOrWhiteSpace(path) || Path.IsPathRooted(path)
