@@ -4,4 +4,20 @@
     <ProjectReference Include="..\SB.Solicitudes.Aplicacion\SB.Solicitudes.Aplicacion.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="ExcelDataReader" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SB.Solicitudes.Infraestructura.Tests" />
+    <InternalsVisibleTo Include="SB.Solicitudes.Servicios.IntegrationTests" />
+  </ItemGroup>
+
 </Project>

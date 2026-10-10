@@ -1,0 +1,182 @@
+Id|Nombre|Categoria|PoderDelEstado|Sector
+1|Acuario Nacional|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+2|Administración General del Parque Nacional Mirador Norte|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+3|Archivo General de la Nación|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Cultura
+4|Autoridad Nacional de Asuntos Marítimos|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+5|Autoridad Portuaria Dominicana|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Obras Públicas y Comunicaciones
+6|Biblioteca Nacional Pedro Henríquez Ureña|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Cultura
+7|Centro de Atención Integral para la Discapacidad|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+8|Centro de Desarrollo y Competitividad Industrial|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+9|Centro de Operaciones de Emergencias|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+10|Comisión de Fomento a la Tecnificación del Sistema Nacional de Riego|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Agricultura
+11|Comisión Nacional de Defensa de la Competencia|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+12|Comisión Nacional de Energía|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Energía y Minas
+13|Comisión Presidencial de Apoyo al Desarrollo Barrial|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Social
+14|Comisión Reguladora de Prácticas Desleales en el Comercio y Medidas de Salvaguardas|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+15|Comité Ejecutor de Infraestructuras de Zonas Turísticas|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Turismo
+16|Consejo de Coordinación de la Zona Especial de Desarrollo Fronterizo|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Industria, Comercio y MIPYMES
+17|Consejo Dominicano de Pesca y Acuicultura|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+18|Consejo Nacional de Competitividad|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Presidencia
+19|Consejo Nacional de Discapacidad|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Presidencia
+20|Consejo Nacional de Drogas|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Presidencia
+21|Consejo Nacional de Fronteras|Órgano Colegiado|Poder Ejecutivo|Relaciones Exteriores
+22|Consejo Nacional de Investigaciones Agropecuarias y Forestales|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+23|Consejo Nacional de la Persona Envejeciente|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Salud
+24|Consejo Nacional de Producción Pecuaria|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Agricultura
+25|Consejo Nacional de Promoción y Apoyo a la Micro, Pequeña y Mediana Empresa|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+26|Consejo Nacional de Seguridad Social|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Trabajo
+27|Consejo Nacional de Zonas Francas de Exportación|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+28|Consejo Nacional para el Cambio Climático y Mercado de Carbono|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Presidencia
+29|Consejo Nacional para el VIH y el SIDA|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+30|Consejo Nacional para la Niñez y la Adolescencia|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Presidencia
+31|Consejo Nacional para la Reglamentación y Fomento de la Industria Lechera|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Agricultura
+32|Consejo Provincial para la Administración de los Fondos Mineros Sánchez Ramírez|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Economía, Planificación y Desarrollo
+33|Consultoría Jurídica del Poder Ejecutivo|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+34|Contraloría General de la República|Ministerio|Poder Ejecutivo|Control Interno
+35|Corporación de Fomento de la Industria Hotelera y Desarrollo del Turismo|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Turismo
+36|Corporación del Acueducto y Alcantarillado de Boca Chica|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+37|Corporación del Acueducto y Alcantarillado de la Romana|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+38|Corporación del Acueducto y Alcantarillado de la Vega|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+39|Corporación del Acueducto y Alcantarillado de Moca|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+40|Corporación del Acueducto y Alcantarillado de Monseñor Nouel|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+41|Corporación del Acueducto y Alcantarillado de Puerto Plata|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+42|Corporación del Acueducto y Alcantarillado de Santiago|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+43|Corporación del Acueducto y Alcantarillado de Santo Domingo|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+44|Corporación Estatal de Radio y Televisión|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Cultura
+45|Cuerpo Especializado de Control de Combustibles|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Defensa
+46|Departamento Aeroportuario|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Obras Públicas y Comunicaciones
+47|Dirección de Asistencia Social y Alimentación Comunitaria|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Social
+48|Dirección de Desarrollo Provincial|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Social
+49|Dirección de Desarrollo Social Supérate|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Social
+50|Dirección de Estrategia y Comunicación Gubernamental|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+51|Dirección de Infraestructura Escolar|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+52|Dirección de Prensa del Presidente de la República|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+53|Dirección del Comisionado Nacional de Beisbol|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Deportes y Recreación
+54|Dirección Ejecutiva del Sistema Nacional de Atención a Emergencias y Seguridad 9-1-1|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+55|Dirección General de Aduanas|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Hacienda
+56|Dirección General de Alianzas Público Privadas|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Presidencia
+57|Dirección General de Bellas Artes|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Cultura
+58|Dirección General de Bienes Nacionales|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+59|Dirección General de Catastro Nacional|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+60|Dirección General de Cine|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Cultura
+61|Dirección General de Contabilidad Gubernamental|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+62|Dirección General de Contrataciones Públicas|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+63|Dirección General de Desarrollo de la Comunidad|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Social
+64|Dirección General de Desarrollo Fronterizo|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+65|Dirección General de Embellecimiento de Carreteras y Avenidas de Circunvalación del País|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Obras Públicas y Comunicaciones
+66|Dirección General de Ética e Integridad Gubernamental|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+67|Dirección General de Ganadería|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Agricultura
+68|Dirección General de Impuestos Internos|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Hacienda
+69|Dirección General de Información y Defensa de los Afiliados a la Seguridad Social|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Trabajo
+70|Dirección General de Jubilaciones y Pensiones a Cargo del Estado|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+71|Dirección General de la Policía Nacional|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Interior y Policía
+72|Dirección General de Mecenazgo|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Cultura
+73|Dirección General de Medicamentos, Alimentos y Productos Sanitarios|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Salud
+74|Dirección General de Migración|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Interior y Policía
+75|Dirección General de Minería|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Energía y Minas
+76|Dirección General de Museos|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Cultura
+77|Dirección General de Pasaportes|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Relaciones Exteriores
+78|Dirección General de Persecución del Ministerio Público|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Justicia
+79|Dirección General de Presupuesto|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+80|Dirección General de Proyectos Estratégicos y Especiales de la Presidencia|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+81|Dirección General de Riesgos Agropecuarios|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+82|Dirección General de Servicios Penitenciarios y Correccionales|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Justicia
+83|Dirección Nacional de Control de Drogas|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+84|Empresa Metropolitana de Transporte, (EMT). S.A.|Empresa Pública|Poder Ejecutivo|Presidencia
+85|Fondo de Pensiones y Jubilaciones de los Trabajadores de la Construcción|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Trabajo
+86|Fondo Especial para el Desarrollo Agropecuario|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Agricultura
+87|Fondo Nacional para el Medio Ambiente y Recursos Naturales|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+88|Gabinete de Coordinación de Política Social|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Social
+89|Industria Nacional de la Aguja|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+90|Instituto Agrario Dominicano|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+91|Instituto Azucarero Dominicano|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+92|Instituto de Auxilios|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Social
+93|Instituto de Desarrollo y Crédito Cooperativo|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+94|Instituto de Educación Superior en Formación Diplomática y Consular “Dr. Eduardo Latorre Rodríguez”|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+95|Instituto de Estabilización de Precios|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+96|Instituto de Formación Turística del Caribe|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Turismo
+97|Instituto de Innovación en Biotecnología e Industria|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+98|Instituto del Tabaco de la República Dominicana|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+99|Instituto Dominicano de Aviación Civil|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Presidencia
+100|Instituto Dominicano de Evaluación e Investigación de la Calidad Educativa|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+101|Instituto Dominicano de Investigaciones Agropecuarias y Forestales|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+102|Instituto Dominicano de las Telecomunicaciones|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Presidencia
+103|Instituto Dominicano de Meteorología|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+104|Instituto Dominicano de Prevención y Protección de Riesgos Laborales|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Trabajo
+105|Instituto Dominicano del Café|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+106|Instituto Dominicano para la Calidad|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+107|Instituto Duartiano|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Cultura
+108|Instituto Geográfico Nacional José Joaquín Hungría Morell|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Economía, Planificación y Desarrollo
+109|Instituto Nacional de Administración Pública|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Administración Pública
+110|Instituto Nacional de Aguas Potables y Alcantarillados|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+111|Instituto Nacional de Atención Integral a la Primera Infancia|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Educación
+112|Instituto Nacional de Bienestar Estudiantil|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+113|Instituto Nacional de Bienestar Magisterial|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+114|Instituto Nacional de Ciencias Forenses|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Justicia
+115|Instituto Nacional de Coordinación de Trasplante|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+116|Instituto Nacional de Custodia y Administración de Bienes Incautados, Decomisados y en Extinción de Dominio|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Hacienda
+117|Instituto Nacional de Educación Física|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+118|Instituto Nacional de Formación Técnico Profesional|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Trabajo
+119|Instituto Nacional de Formación y Capacitación del Magisterio|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación
+120|Instituto Nacional de la Uva|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+121|Instituto Nacional de Migración|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Interior y Policía
+122|Instituto Nacional de Protección de los Derechos del Consumidor|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+123|Instituto Nacional de Recursos Hidráulicos|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+124|Instituto Nacional de Tránsito y Transporte Terrestre|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Obras Públicas y Comunicaciones
+125|Instituto para el Desarrollo del Suroeste|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Economía, Planificación y Desarrollo
+126|Instituto Postal Dominicano|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Obras Públicas y Comunicaciones
+127|Instituto Superior de Formación Docente Salomé Ureña|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+128|Instituto Superior Especializado de Estudios Penitenciario y Correccionales|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Justicia
+129|Instituto Técnico Superior Comunitario|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+130|Instituto Tecnológico de las Américas|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+131|Jardín Botánico Nacional "Dr. Rafael M. Moscoso"|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+132|Junta de Aviación Civil|Órgano Colegiado con Estructura Operativa|Poder Ejecutivo|Presidencia
+133|Liga Municipal Dominicana|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Interior y Policía
+134|Lotería Nacional|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+135|Mercados Dominicanos de Abasto Agropecuario|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Agricultura
+136|Ministerio Administrativo de la Presidencia|Ministerio|Poder Ejecutivo|Presidencia
+137|Ministerio de Administración Pública|Ministerio|Poder Ejecutivo|Administración Pública
+138|Ministerio de Agricultura|Ministerio|Poder Ejecutivo|Agricultura
+139|Ministerio de Cultura|Ministerio|Poder Ejecutivo|Cultura
+140|Ministerio de Defensa|Ministerio|Poder Ejecutivo|Defensa
+141|Ministerio de Deportes y Recreación|Ministerio|Poder Ejecutivo|Deportes y Recreación
+142|Ministerio de Educación|Ministerio|Poder Ejecutivo|Educación
+143|Ministerio de Educación Superior, Ciencia y Tecnología|Ministerio|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+144|Ministerio de Energía y Minas|Ministerio|Poder Ejecutivo|Energía y Minas
+145|Ministerio de Hacienda y Economía|Ministerio|Poder Ejecutivo|Hacienda
+146|Ministerio de Industria, Comercio y Mipymes|Ministerio|Poder Ejecutivo|Industria, Comercio y MIPYMES
+147|Ministerio de Interior y Policía|Ministerio|Poder Ejecutivo|Interior y Policía
+148|Ministerio de la Juventud|Ministerio|Poder Ejecutivo|Juventud
+149|Ministerio de la Mujer|Ministerio|Poder Ejecutivo|Mujer
+150|Ministerio de la Presidencia|Ministerio|Poder Ejecutivo|Presidencia
+151|Ministerio de la Vivienda, Hábitat y Edificaciones|Ministerio|Poder Ejecutivo|Vivienda, Hábitat y Edificaciones
+152|Ministerio de Medio Ambiente y Recursos Naturales|Ministerio|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+153|Ministerio de Obras Públicas y Comunicaciones|Ministerio|Poder Ejecutivo|Obras Públicas y Comunicaciones
+154|Ministerio de Relaciones Exteriores|Ministerio|Poder Ejecutivo|Relaciones Exteriores
+155|Ministerio de Salud Pública y Asistencia Social|Ministerio|Poder Ejecutivo|Salud
+156|Ministerio de Trabajo|Ministerio|Poder Ejecutivo|Trabajo
+157|Ministerio de Turismo|Ministerio|Poder Ejecutivo|Turismo
+158|Ministerio Público|Ministerio|Poder Ejecutivo|Justicia
+159|Museo Nacional de Historia Natural "Prof. Eugenio de Jesús Marcano"|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+160|Oficina de la Defensa Civil|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+161|Oficina Gubernamental de Tecnologías de la Información y Comunicación|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Administración Pública
+162|Oficina Nacional de Derecho de Autor|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+163|Oficina Nacional de Estadística|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Economía, Planificación y Desarrollo
+164|Oficina Nacional de Evaluación Sísmica y Vulnerabilidad de Infraestructura y Edificaciones|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Presidencia
+165|Oficina Nacional de la Propiedad Industrial|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+166|Organismo Dominicano de Acreditación|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Industria, Comercio y MIPYMES
+167|Parque Zoológico Nacional Arq. Manuel Valverde Podesta|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Medio Ambiente y Recursos Naturales
+168|Programa de Medicamentos Esenciales/Central de Apoyo Logístico|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Salud
+169|Servicio Geológico Nacional|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Energía y Minas
+170|Servicio Nacional de Salud|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Salud
+171|Sistema Único de Beneficiarios|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Social
+172|Superintendencia de Salud y Riesgos Laborales|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Trabajo
+173|Superintendencia de Seguros|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Hacienda
+174|Superintendencia del Mercado de Valores|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Hacienda
+175|Tesorería de la Seguridad Social|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Trabajo
+176|Tesorería Nacional|Organismo Desconcentrado Funcionalmente|Poder Ejecutivo|Hacienda
+177|Unidad de Análisis Financiero|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Hacienda
+178|Unidad Ejecutora para la Readecuación de Barrios y Entornos|Unidad Ejecutora (Proyecto)|Poder Ejecutivo|Presidencia
+179|Unidad Técnica Ejecutora de Titulación de Terrenos del Estado|Unidad Ejecutora (Proyecto)|Poder Ejecutivo|Presidencia
+180|Universidad Autónoma de Santo Domingo|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología
+181|Universidad Tecnológica del Cibao Oriental|Organismo Descentralizado Funcionalmente|Poder Ejecutivo|Educación Superior, Ciencia y Tecnología

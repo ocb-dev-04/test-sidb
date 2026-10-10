@@ -429,3 +429,10 @@ FodyWeavers.xsd
 
 # Technical test source documents (confidential - SB internal use only)
 Dev-Sr/
+
+# Artefactos generados al ejecutar la API localmente
+src/backend/src/SB.Solicitudes.Servicios/Data/*.db
+src/backend/src/SB.Solicitudes.Servicios/Data/*.db-*
+src/backend/src/SB.Solicitudes.Servicios/Data/*.tmp
+src/backend/src/SB.Solicitudes.Servicios/logs/
+src/backend/src/SB.Solicitudes.Servicios/simulated-mail/
