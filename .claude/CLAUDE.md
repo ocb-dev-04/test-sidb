@@ -46,8 +46,13 @@ docs/             arquitectura.md, evidencias.md
 ## Commands (from `src/backend`)
 
 - Build: `dotnet build SB.Solicitudes.sln` (warnings are errors)
-- Test: `dotnet test SB.Solicitudes.sln`
+- Test: `dotnet test SB.Solicitudes.sln` (integration tests need Docker; skip with `--filter "Category!=Integration"`)
 - SDK: `global.json` targets 8.0.100 with `rollForward: latestMajor` (builds on SDK 8 or newer).
+- EF: `dotnet tool restore`, then `dotnet ef migrations add <Name> --context ApplicationDbContext --project src/SB.Solicitudes.Infraestructura --startup-project src/SB.Solicitudes.Infraestructura --output-dir Persistence/Migrations`.
+  Regenerate `database/schema.sql` / `seed.sql` with `dotnet ef migrations script ... --idempotent` after any migration.
+- Whole stack: `docker compose up --build` at the repo root (SQL Server 1433, API 5080, frontend 8080).
+- Full local check: `scripts/validate.ps1` (or `.sh`).
+- Demo users: `admin@`, `analista1@`, `analista2@`, `solicitante1@`, `solicitante2@solicitudes.local`, password `Demo2026*`.
 
 ## Rules to read before working
 

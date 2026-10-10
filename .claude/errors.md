@@ -103,6 +103,39 @@ rebuild, fix the residue by hand. Budget it in the same commit.
 
 ---
 
+## E001 — `NU1507: There are 2 package sources defined ... When using central package management, map your package sources`
+**Symptom:** first restore of the solution failed (warnings are errors).
+**Root cause:** the machine-wide NuGet config adds a private GitHub feed; with CPM NuGet demands source mapping.
+**Fix:** `src/backend/nuget.config` with `<clear/>`, only nuget.org and a `packageSourceMapping` for `*`.
+**Rule:** never depend on machine-level feeds; reviewers must restore from nuget.org only.
+
+## E002 — Integration tests ignored `ConfigureAppConfiguration` overrides (429 on login, wrong database)
+**Symptom:** tests hit the developer SQL Server and the login rate limit, although the factory overrode both.
+**Root cause:** `AddInfrastructure`/`AddPresentation` read configuration eagerly while registering services, before
+`WebApplicationFactory` applied its in-memory configuration.
+**Fix:** resolve configuration lazily: `AddDbContext((serviceProvider, options) => ...)` reading `IConfiguration`,
+`AddOptions<JwtBearerOptions>().Configure<IOptions<JwtOptions>>`, CORS via `AddOptions<CorsOptions>()`, rate limit
+options resolved from `httpContext.RequestServices`.
+**Rule:** never call `configuration.GetConnectionString/GetValue` at registration time; prove test isolation by dropping
+the local database and checking it is not recreated.
+
+## E003 — `CA1707` / `CA1716` / `CA1711` break the build on spec-mandated names
+**Root cause:** analyzers forbid `_` in public members (UPPER_SNAKE constants), the VB keyword `Error`, and suffixes
+`EventHandler`, `Delegate`, `Collection`.
+**Fix:** CA1707 and CA1716 disabled in `.editorconfig` (they contradict the specification); for CA1711 the types were
+renamed (`IDomainEventSubscriber`, `RequestPipelineNext`, `ApiTestGroup`).
+
+## E004 — Generated `[LoggerMessage]` fields fail `ConstantsShouldBeUpperCase`
+**Root cause:** the source generator emits `private static readonly ... __XCallback` fields in the partial class.
+**Fix:** the architecture test skips fields marked with `GeneratedCodeAttribute`.
+
+## E005 — Docker build of the API ignores naming rules / fails on CA1707
+**Root cause:** `.editorconfig` lives at the repo root, outside a `src/backend` build context.
+**Fix:** the API image builds with the repo root as context (`docker-compose.yml`: `context: .`,
+`dockerfile: src/backend/Dockerfile`) and copies `.editorconfig`; a root `.dockerignore` trims the context.
+
+---
+
 ## Template
 
 ```
