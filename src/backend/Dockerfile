@@ -17,8 +17,10 @@ RUN dotnet publish src/backend/src/SB.Solicitudes.Servicios/SB.Solicitudes.Servi
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app ./
-RUN mkdir -p /app/logs /app/simulated-mail && chown -R app:app /app
-USER app
+# Las carpetas que se montan como volumen deben existir con dueño app; si no, Docker las crea como root.
+RUN mkdir -p /app/Data /app/logs /app/simulated-mail && chown -R $APP_UID:$APP_UID /app
+# UID numérico (no el nombre) para que orquestadores con runAsNonRoot puedan verificarlo.
+USER $APP_UID
 
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
