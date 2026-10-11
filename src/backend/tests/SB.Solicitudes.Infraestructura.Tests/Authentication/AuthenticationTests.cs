@@ -11,7 +11,8 @@ public sealed class AuthenticationTests
 {
     private const string PASSWORD = "Demo2026*";
     private const string WRONG_PASSWORD = "demo2026*";
-    private const string SEEDED_HASH = "PBKDF2-SHA256.100000.+9YkaJuGlrd4t4HrEysALQ==.I5f5qXFwU9IHlmzqYETatOxi5vYzLgqQ+UJ3xrVoaK4=";
+    private const string STORED_HASH = "stored-password-hash";
+    private const string MALFORMED_HASH = "not-a-hash";
     private const string ISSUER = "SB.Solicitudes";
     private const string AUDIENCE = "SB.Solicitudes.Web";
     private const string SIGNING_KEY = "test-signing-key-with-at-least-32-characters";
@@ -21,7 +22,7 @@ public sealed class AuthenticationTests
 
     private static readonly DateTimeOffset NOW = new(2026, 10, 10, 12, 0, 0, TimeSpan.Zero);
 
-    private readonly Pbkdf2PasswordHasher _passwordHasher = new();
+    private readonly IdentityPasswordHasher _passwordHasher = new();
 
     [Fact]
     public void HashShouldVerifyOnlyTheOriginalPasswordAndUseRandomSalt()
@@ -35,10 +36,9 @@ public sealed class AuthenticationTests
     }
 
     [Fact]
-    public void VerifyShouldAcceptSeededHashesAndRejectMalformedOnes()
+    public void VerifyShouldRejectMalformedHashes()
     {
-        _passwordHasher.Verify(PASSWORD, SEEDED_HASH).ShouldBeTrue();
-        _passwordHasher.Verify(PASSWORD, "not-a-hash").ShouldBeFalse();
+        _passwordHasher.Verify(PASSWORD, MALFORMED_HASH).ShouldBeFalse();
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public sealed class AuthenticationTests
         JwtTokenProvider provider = new(
             Options.Create(new JwtOptions { Issuer = ISSUER, Audience = AUDIENCE, SigningKey = SIGNING_KEY, ExpirationMinutes = EXPIRATION_MINUTES }),
             new FixedTimeProvider(NOW));
-        User user = User.Create(FULL_NAME, EMAIL, SEEDED_HASH, UserRole.Analyst, NOW.UtcDateTime);
+        User user = User.Create(FULL_NAME, EMAIL, STORED_HASH, UserRole.Analyst, NOW.UtcDateTime);
 
         AccessToken accessToken = provider.Create(user);
         JsonWebToken token = new(accessToken.Value);

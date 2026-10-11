@@ -79,7 +79,7 @@ public static class DependencyInjection
         services.AddOptions<JwtOptions>().Bind(configuration.GetSection(JwtOptions.SECTION_NAME)).ValidateOnStart();
         services.AddSingleton<IValidateOptions<JwtOptions>, JwtOptionsValidator>();
         services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
-        services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
+        services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();
         return services;
     }
 

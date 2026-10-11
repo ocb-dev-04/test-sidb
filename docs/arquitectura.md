@@ -202,7 +202,7 @@ por significado de negocio (prioridad, flujo de estados) se usa una expresión `
 
 - JWT HS256 con `issuer`, `audience`, expiración y algoritmo validados; opciones verificadas al arrancar
   (`ValidateOnStart`, llave ≥ 32 caracteres). La llave se sobrescribe con la variable `Jwt__SigningKey`.
-- Claves con PBKDF2-SHA256 (100 000 iteraciones, sal aleatoria, comparación en tiempo constante).
+- Claves con el `PasswordHasher` de ASP.NET Core Identity (PBKDF2-HMAC-SHA512, sal aleatoria, formato versionado).
 - Login con el mismo error para usuario inexistente o clave incorrecta (sin enumeración) y *rate limiting* por IP.
 - Política por defecto: todo endpoint exige autenticación salvo `login` y `health`.
 - Logs estructurados con usuario y `traceId`; nunca contraseñas, tokens ni valores de parámetros SQL; los correos
