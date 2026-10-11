@@ -434,5 +434,7 @@ Dev-Sr/
 src/backend/src/SB.Solicitudes.Servicios/Data/*.db
 src/backend/src/SB.Solicitudes.Servicios/Data/*.db-*
 src/backend/src/SB.Solicitudes.Servicios/Data/*.tmp
+# La base de texto plano se genera desde el Excel en el primer arranque
+src/backend/src/SB.Solicitudes.Servicios/Data/entidades-gubernamentales.txt
 src/backend/src/SB.Solicitudes.Servicios/logs/
 src/backend/src/SB.Solicitudes.Servicios/simulated-mail/

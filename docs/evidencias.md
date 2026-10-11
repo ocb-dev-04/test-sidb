@@ -1,6 +1,6 @@
 # Evidencias y guía del flujo principal
 
-Capturas tomadas sobre la aplicación en ejecución (Chrome, 1440 px) con los datos de ejemplo de la semilla.
+Capturas tomadas sobre la aplicación en ejecución (Chrome, 1440 px) con los datos de ejemplo que la API carga en el primer arranque.
 
 ## 1. Inicio de sesión
 

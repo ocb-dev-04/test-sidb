@@ -39,7 +39,7 @@ src/backend/      SB.Solicitudes.sln, global.json, Directory.*.props, nuget.conf
   src/            the four layer projects
   tests/          ArchitectureTests (+ unit / integration test projects as they get tests)
 src/frontend/     React + TypeScript (Vite)
-database/         schema.sql, seed.sql
+database/         schema.sql (sample data is loaded at startup by DatabaseSeeder, only into empty tables)
 docs/             arquitectura.md, evidencias.md
 ```
 
@@ -49,7 +49,7 @@ docs/             arquitectura.md, evidencias.md
 - Test: `dotnet test SB.Solicitudes.sln` (integration tests need Docker; skip with `--filter "Category!=Integration"`)
 - SDK: `global.json` targets 8.0.100 with `rollForward: latestMajor` (builds on SDK 8 or newer).
 - EF: `dotnet tool restore`, then `dotnet ef migrations add <Name> --context ApplicationDbContext --project src/SB.Solicitudes.Infraestructura --startup-project src/SB.Solicitudes.Infraestructura --output-dir Persistence/Migrations`.
-  Regenerate `database/schema.sql` / `seed.sql` with `dotnet ef migrations script ... --idempotent` after any migration.
+  Regenerate `database/schema.sql` with `dotnet ef migrations script 0 --idempotent ...` after any migration.
 - Whole stack: `docker compose up --build` at the repo root (SQL Server 1433, API 5080, frontend 8080).
 - Full local check: `scripts/validate.ps1` (or `.sh`).
 - Demo users: `admin@`, `analista1@`, `analista2@`, `solicitante1@`, `solicitante2@solicitudes.local`, password `Demo2026*`.

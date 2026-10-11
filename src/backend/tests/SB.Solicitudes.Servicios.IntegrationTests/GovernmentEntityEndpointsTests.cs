@@ -38,6 +38,18 @@ public sealed class GovernmentEntityEndpointsTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task FirstStartupShouldCreateTheTextDatabaseFromExcel()
+    {
+        HttpClient client = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_REQUESTER_EMAIL);
+
+        PagedResult<GovernmentEntityResponse>? textFile = await client.GetFromJsonAsync<PagedResult<GovernmentEntityResponse>>(
+            $"{ROUTE}?source=TextFile&pageSize=1", ApiFactory.JSON_OPTIONS);
+
+        File.Exists(factory.TextFilePath).ShouldBeTrue();
+        textFile!.TotalCount.ShouldBeGreaterThanOrEqualTo(EXCEL_ENTITY_COUNT);
+    }
+
+    [Fact]
     public async Task AdministratorShouldCrudOnTextFileButNotOnExcel()
     {
         HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);

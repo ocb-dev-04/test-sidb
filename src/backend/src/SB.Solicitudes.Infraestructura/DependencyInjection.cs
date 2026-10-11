@@ -16,6 +16,7 @@ using SB.Solicitudes.Infraestructura.Initialization;
 using SB.Solicitudes.Infraestructura.Notifications;
 using SB.Solicitudes.Infraestructura.Persistence;
 using SB.Solicitudes.Infraestructura.Persistence.Repositories;
+using SB.Solicitudes.Infraestructura.Persistence.Seed;
 
 namespace SB.Solicitudes.Infraestructura;
 
@@ -67,6 +68,7 @@ public static class DependencyInjection
         services.AddScoped<IRequestTypeRepository, RequestTypeRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<INotificationReadRepository, NotificationReadRepository>();
+        services.AddScoped<DatabaseSeeder>();
 
         services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
         return services;

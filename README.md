@@ -10,7 +10,7 @@ gubernamentales** con base de datos en archivo de texto plano.
 | Backend | .NET 8, ASP.NET Core Web API, EF Core 8, SQL Server 2022, SQLite, Serilog, Swagger, JWT |
 | Frontend | React 18, TypeScript (strict), Vite, React Router, TanStack Query, react-hook-form + zod |
 | Arquitectura | Onion: `SB.Solicitudes.Dominio` · `.Aplicacion` · `.Infraestructura` · `.Servicios` |
-| Pruebas | 113 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
+| Pruebas | 115 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
 | Entrega | Docker Compose, migraciones EF + scripts SQL, CI en GitHub Actions |
 
 ---
@@ -53,7 +53,7 @@ Requisitos: SDK de .NET 8 o superior (`global.json` permite *roll forward*), Nod
 # 1. Base de datos (o use su propia instancia y ajuste ConnectionStrings:SolicitudesDatabase)
 docker run -d --name sb-sql -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=SbSolicitudes#Dev2026" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
 
-# 2. API — en Development aplica migraciones y semilla automáticamente
+# 2. API — en Development aplica migraciones y carga datos de ejemplo si la base está vacía
 cd src/backend
 dotnet run --project src/SB.Solicitudes.Servicios --launch-profile http     # http://localhost:5080/swagger
 
@@ -69,9 +69,11 @@ npm run dev                                                                  # h
   `dotnet ef database update --context ApplicationDbContext --project src/SB.Solicitudes.Infraestructura --startup-project src/SB.Solicitudes.Infraestructura`
   (usa la variable `SB_SOLICITUDES_CONNECTION_STRING` o, si no existe, el SQL Server local del paso 1), o
   simplemente arrancar la API con `Database:ApplyMigrationsOnStartup=true` (activo en Development y Docker).
-- **Scripts SQL**: `database/schema.sql` (tablas, índices y restricciones) y `database/seed.sql` (catálogos,
-  usuarios y 8 solicitudes de ejemplo con historial y comentarios). Son idempotentes y se generan desde las
-  migraciones, por lo que siempre coinciden con el modelo.
+- **Script SQL**: `database/schema.sql` (tablas, índices y restricciones), idempotente y generado desde las
+  migraciones, por lo que siempre coincide con el modelo.
+- **Datos de ejemplo al primer arranque**: la API revisa cada tabla y solo la llena si está vacía (6 áreas, 5 tipos
+  de solicitud, los 5 usuarios de prueba y 8 solicitudes con historial y comentarios, con fechas relativas al día de
+  arranque). Nunca sobrescribe datos existentes; se desactiva con `Database:SeedOnStartup=false`.
 - Motor: SQL Server 2019+ (probado con 2022). Las tablas y columnas usan los nombres en español del modelo de la
   prueba (`Solicitudes`, `HistorialEstados`, `FechaCompromiso`...).
 
@@ -115,7 +117,9 @@ entorno (`Seccion__Clave`):
 - CRUD completo desde la interfaz (Consulta / Crear registro), con filtros por nombre (sin distinguir tildes),
   categoría, poder del Estado y sector.
 - **Base de datos en archivo de texto plano** dentro del proyecto:
-  `src/backend/src/SB.Solicitudes.Servicios/Data/entidades-gubernamentales.txt` (181 entidades del Excel oficial).
+  `src/backend/src/SB.Solicitudes.Servicios/Data/entidades-gubernamentales.txt`. Si no existe o está vacío, en el
+  primer arranque se crea con las 181 entidades del Excel oficial (`ListaEntidadesGubernamentales.xlsx`), que queda
+  como fuente original de solo lectura.
 - Patrón **Strategy + Factory**: el selector de fuente permite consultar el archivo de texto (por defecto), una base
   **SQLite** gestionada con EF Core o el **Excel original** (solo lectura). La importación copia el Excel a la fuente
   elegida.
@@ -161,7 +165,7 @@ src/backend
     ├── SB.Solicitudes.ArchitectureTests
     └── SB.Solicitudes.Servicios.IntegrationTests
 src/frontend                            React + TypeScript (components, pages, services, types, hooks)
-database                                schema.sql y seed.sql
+database                                schema.sql (los datos de ejemplo los carga la API al arrancar)
 docs                                    arquitectura (ADR), evidencias, OpenAPI, respuestas conceptuales
 ```
 
@@ -198,7 +202,7 @@ npm test
 | `Aplicacion.Tests` | 23 | Pipeline de validación, handlers con dobles, visibilidad SQL vs memoria, destinatarios de notificaciones, búsqueda e importación de entidades |
 | `Infraestructura.Tests` | 11 | Archivo de texto (escapes, concurrencia), lectura del Excel real, factory, PBKDF2, JWT, enmascarado de correos |
 | `ArchitectureTests` | 12 | Dependencias entre capas y convenciones de nombres de la especificación |
-| `Servicios.IntegrationTests` | 15 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes |
+| `Servicios.IntegrationTests` | 17 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
 | Frontend (Vitest) | 39 | Etiquetas, traducción de errores, esquemas zod, permisos por rol en la interfaz, cliente HTTP, login, navegación |
 
 `scripts/validate.ps1` (o `validate.sh`) ejecuta lo mismo que el pipeline de CI (`.github/workflows/ci.yml`).

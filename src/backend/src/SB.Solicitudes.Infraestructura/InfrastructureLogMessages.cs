@@ -23,6 +23,9 @@ internal static partial class InfrastructureLogMessages
     [LoggerMessage(EventId = 2200, Level = LogLevel.Information, Message = "Applying pending database migrations")]
     public static partial void ApplyingMigrations(ILogger logger);
 
+    [LoggerMessage(EventId = 2201, Level = LogLevel.Information, Message = "Seed completed: {AreaCount} areas, {RequestTypeCount} request types, {UserCount} users, {ServiceRequestCount} service requests added (0 = already had data)")]
+    public static partial void DatabaseSeeded(ILogger logger, int areaCount, int requestTypeCount, int userCount, int serviceRequestCount);
+
     [LoggerMessage(EventId = 2300, Level = LogLevel.Information, Message = "Government entities store {Store} initialized with {Count} records from Excel")]
     public static partial void GovernmentEntitiesStoreSeeded(ILogger logger, string store, int count);
 

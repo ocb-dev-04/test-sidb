@@ -2,15 +2,20 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SB.Solicitudes.Aplicacion.Abstractions.Pagination;
 using SB.Solicitudes.Aplicacion.Features.Authentication;
 using SB.Solicitudes.Aplicacion.Features.Dashboard;
 using SB.Solicitudes.Aplicacion.Features.Notifications;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests.CreateServiceRequest;
+using SB.Solicitudes.Aplicacion.Features.Users;
 using SB.Solicitudes.Dominio.Notifications;
 using SB.Solicitudes.Dominio.ServiceRequests;
 using SB.Solicitudes.Dominio.Users;
+using SB.Solicitudes.Infraestructura.Persistence;
+using SB.Solicitudes.Infraestructura.Persistence.Seed;
 using SB.Solicitudes.Servicios.Controllers;
 using SB.Solicitudes.Servicios.IntegrationTests.Infrastructure;
 
@@ -29,8 +34,8 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     private const int FINANCE_AREA_ID = 3;
     private const int OVERSIZED_PAGE_SIZE = 1000;
 
-    private static readonly Guid SEEDED_REQUEST_ASSIGNED_TO_SECOND_ANALYST = new(2, 0, 0, [0, 0, 0, 0, 0, 0, 0, 2]);
-    private static readonly Guid SEEDED_CLOSED_REQUEST_OF_FIRST_REQUESTER = new(1, 0, 0, [0, 0, 0, 0, 0, 0, 0, 2]);
+    private const string SEEDED_CLOSED_REQUEST_SEARCH = "correo institucional";
+    private const string SECOND_ANALYST_NAME = "José Martínez";
 
     [Fact]
     public async Task LoginShouldRejectWrongPasswordWithoutRevealingWhetherUserExists()
@@ -75,9 +80,10 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     public async Task RequesterShouldNotChangeStatus()
     {
         HttpClient requester = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_REQUESTER_EMAIL);
+        Guid closedRequestId = await FindSeededClosedRequestAsync();
 
         HttpResponseMessage response = await requester.PatchAsJsonAsync(
-            $"{SOLICITUDES_ROUTE}/{SEEDED_CLOSED_REQUEST_OF_FIRST_REQUESTER}/estado",
+            $"{SOLICITUDES_ROUTE}/{closedRequestId}/estado",
             new ChangeStatusRequest(ServiceRequestStatus.InAnalysis, RESOLUTION_COMMENT),
             ApiFactory.JSON_OPTIONS);
 
@@ -113,9 +119,14 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     [Fact]
     public async Task AnalystShouldNotSeeRequestsAssignedToAnotherAnalyst()
     {
+        HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);
         HttpClient analyst = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_ANALYST_EMAIL);
+        List<UserLookupResponse> assignable = await GetJsonAsync<List<UserLookupResponse>>(administrator, "/api/usuarios/responsables");
+        Guid secondAnalystId = assignable.Single(user => user.FullName == SECOND_ANALYST_NAME).Id;
+        PagedResult<ServiceRequestSummaryResponse> assignedToOther = await GetJsonAsync<PagedResult<ServiceRequestSummaryResponse>>(
+            administrator, $"{SOLICITUDES_ROUTE}?assigneeId={secondAnalystId}");
 
-        HttpResponseMessage response = await analyst.GetAsync($"{SOLICITUDES_ROUTE}/{SEEDED_REQUEST_ASSIGNED_TO_SECOND_ANALYST}");
+        HttpResponseMessage response = await analyst.GetAsync($"{SOLICITUDES_ROUTE}/{assignedToOther.Items[0].Id}");
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
@@ -125,7 +136,7 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     {
         HttpClient requester = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_REQUESTER_EMAIL);
         HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);
-        string route = $"{SOLICITUDES_ROUTE}/{SEEDED_CLOSED_REQUEST_OF_FIRST_REQUESTER}";
+        string route = $"{SOLICITUDES_ROUTE}/{await FindSeededClosedRequestAsync()}";
 
         ServiceRequestDetailResponse requesterView = await GetJsonAsync<ServiceRequestDetailResponse>(requester, route);
         ServiceRequestDetailResponse administratorView = await GetJsonAsync<ServiceRequestDetailResponse>(administrator, route);
@@ -159,6 +170,30 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
         summary.TotalCount.ShouldBe(summary.ByPriority.Sum(item => item.Count));
         summary.LatestRequests.ShouldNotBeEmpty();
         summary.LatestRequests.Count.ShouldBeLessThanOrEqualTo(GetDashboardSummaryQuery.LATEST_REQUESTS_COUNT);
+    }
+
+    [Fact]
+    public async Task SeederShouldNotDuplicateDataWhenStartupRunsAgain()
+    {
+        await using AsyncServiceScope scope = factory.Services.CreateAsyncScope();
+        ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        int usersBefore = await context.Users.CountAsync();
+        int areasBefore = await context.Areas.CountAsync();
+        int requestsBefore = await context.ServiceRequests.CountAsync();
+
+        await scope.ServiceProvider.GetRequiredService<DatabaseSeeder>().SeedAsync(CancellationToken.None);
+
+        (await context.Users.CountAsync()).ShouldBe(usersBefore);
+        (await context.Areas.CountAsync()).ShouldBe(areasBefore);
+        (await context.ServiceRequests.CountAsync()).ShouldBe(requestsBefore);
+    }
+
+    private async Task<Guid> FindSeededClosedRequestAsync()
+    {
+        HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);
+        PagedResult<ServiceRequestSummaryResponse> page = await GetJsonAsync<PagedResult<ServiceRequestSummaryResponse>>(
+            administrator, $"{SOLICITUDES_ROUTE}?status=Closed&search={Uri.EscapeDataString(SEEDED_CLOSED_REQUEST_SEARCH)}");
+        return page.Items.Single().Id;
     }
 
     private static async Task<T> GetJsonAsync<T>(HttpClient client, string route)

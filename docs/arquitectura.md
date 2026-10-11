@@ -37,7 +37,7 @@ flowchart LR
 |---|---|---|
 | `SB.Solicitudes.Dominio` | Entidades con invariantes (`ServiceRequest`, `StatusHistory`, `Comment`, `User`, `Area`, `RequestType`, `Notification`, `GovernmentEntity`), tabla de transiciones, eventos de dominio, `Result`/`Error`. | Nada |
 | `SB.Solicitudes.Aplicacion` | Casos de uso (comandos y consultas), validaciones FluentValidation, mediator con *pipeline*, especificación de visibilidad por rol, puertos (repositorios, generador de código, JWT, hasher, almacenes de entidades). | Dominio |
-| `SB.Solicitudes.Infraestructura` | Implementaciones de los puertos: EF Core + SQL Server, migraciones y semilla, generador `SOL-AAAA-NNNN`, JWT, PBKDF2, canales y *worker* de notificaciones, almacenes de texto plano / SQLite / Excel. | Aplicacion |
+| `SB.Solicitudes.Infraestructura` | Implementaciones de los puertos: EF Core + SQL Server, migraciones, carga inicial de datos, generador `SOL-AAAA-NNNN`, JWT, PBKDF2, canales y *worker* de notificaciones, almacenes de texto plano / SQLite / Excel. | Aplicacion |
 | `SB.Solicitudes.Servicios` | Host de la API (los "servicios" REST): controllers, autenticación y *policies*, ProblemDetails, Serilog, Swagger, CORS, *rate limiting*. Es la raíz de composición. | Aplicacion, Infraestructura |
 
 Las dependencias apuntan hacia el centro. `tests/SB.Solicitudes.ArchitectureTests` lo verifica en cada build:
@@ -134,6 +134,21 @@ autorización por acción (defensa en profundidad: los handlers también la vali
 **Consecuencias.** Cambiar de correo a una cola (RabbitMQ, Service Bus) es agregar una clase que implemente
 `INotificationDeliveryChannel` y un valor en `NotificationChannel`; los casos de uso no cambian. Con varias
 instancias de la API habría que tomar el lote con `UPDLOCK, READPAST` (documentado como mejora).
+
+## ADR-012 · Datos de ejemplo cargados al arrancar, solo si faltan
+
+**Contexto.** La revisión necesita usuarios y solicitudes de ejemplo sin pasos manuales, pero una semilla en la
+migración (`HasData`) se aplica siempre, fija fechas que envejecen y no se puede volver a ejecutar sin riesgo.
+
+**Decisión.** `DatabaseSeeder` corre al iniciar la API después de las migraciones y revisa tabla por tabla
+(áreas, tipos, usuarios, solicitudes): solo inserta donde no hay datos. Las solicitudes se construyen con los
+métodos del dominio (crear, asignar, cambiar estado, comentar), así respetan las mismas reglas que el uso real,
+con fechas relativas al día de arranque para que haya abiertas, cerradas y vencidas. Se limpian sus eventos de
+dominio para no generar notificaciones de ejemplo. Lo mismo aplica a las entidades gubernamentales: el archivo de
+texto y SQLite se crean desde el Excel solo si están vacíos.
+
+**Consecuencias.** Arrancar dos veces no duplica datos (cubierto por una prueba de integración). El archivo de
+texto es un dato de ejecución y no se versiona; el Excel sí, como fuente original.
 
 ## ADR-006 · Código legible `SOL-AAAA-NNNN`
 

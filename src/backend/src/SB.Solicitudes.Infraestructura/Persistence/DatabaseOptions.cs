@@ -11,6 +11,8 @@ public sealed class DatabaseOptions
 
     public bool ApplyMigrationsOnStartup { get; set; }
 
+    public bool SeedOnStartup { get; set; } = true;
+
     public int CommandTimeoutSeconds { get; set; } = DEFAULT_COMMAND_TIMEOUT_SECONDS;
 
     public int MaximumRetryCount { get; set; } = DEFAULT_MAXIMUM_RETRY_COUNT;

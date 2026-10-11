@@ -93,7 +93,7 @@ Defensa en capas:
   (todas las transiciones como `[Theory]`), reglas de cierre y reapertura, generación del código, `Result`, la
   especificación de visibilidad, los handlers con dobles (NSubstitute) y los suscriptores de notificaciones.
 - **Integración**: varias piezas reales juntas. Aquí la API completa con `WebApplicationFactory` contra un SQL Server
-  real en Testcontainers: autenticación, *policies*, filtros SQL, migraciones, la semilla, el código consecutivo y el
+  real en Testcontainers: autenticación, *policies*, filtros SQL, migraciones, la carga inicial de datos, el código consecutivo y el
   CRUD de entidades en las tres fuentes. También el almacén de texto con archivos reales y el lector del Excel.
 - **End-to-end**: el sistema desde la interfaz como lo usa una persona (navegador → frontend → API → base). Las
   reservaría para los flujos críticos (iniciar sesión, crear solicitud, cerrarla) con Playwright, porque son las

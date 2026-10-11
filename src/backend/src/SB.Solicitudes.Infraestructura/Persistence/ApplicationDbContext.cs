@@ -7,7 +7,6 @@ using SB.Solicitudes.Dominio.Notifications;
 using SB.Solicitudes.Dominio.ServiceRequests;
 using SB.Solicitudes.Dominio.Users;
 using SB.Solicitudes.Infraestructura.Persistence.Configurations;
-using SB.Solicitudes.Infraestructura.Persistence.Seed;
 
 namespace SB.Solicitudes.Infraestructura.Persistence;
 
@@ -49,7 +48,6 @@ public sealed class ApplicationDbContext(
             type => type.Namespace == typeof(ServiceRequestConfiguration).Namespace);
 
         modelBuilder.IgnoreDomainEvents();
-        modelBuilder.ApplySeedData();
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

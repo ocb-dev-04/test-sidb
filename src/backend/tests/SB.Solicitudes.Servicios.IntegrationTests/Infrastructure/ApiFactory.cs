@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using SB.Solicitudes.Aplicacion.Features.Authentication;
 using Testcontainers.MsSql;
@@ -39,11 +40,12 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         Directory.CreateDirectory(_dataDirectory);
         string projectDataDirectory = Path.Combine(FindProjectDirectory(), "Data");
-        File.Copy(Path.Combine(projectDataDirectory, TEXT_FILE_NAME), Path.Combine(_dataDirectory, TEXT_FILE_NAME));
         File.Copy(Path.Combine(projectDataDirectory, EXCEL_FILE_NAME), Path.Combine(_dataDirectory, EXCEL_FILE_NAME));
 
         await _sqlContainer.StartAsync();
     }
+
+    public string TextFilePath => Path.Combine(_dataDirectory, TEXT_FILE_NAME);
 
     public async Task<HttpClient> CreateAuthenticatedClientAsync(string email)
     {
@@ -60,6 +62,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         await base.DisposeAsync();
         await _sqlContainer.DisposeAsync();
+
+        // SQLite mantiene el archivo abierto en su pool de conexiones; sin esto no se puede borrar en Windows.
+        SqliteConnection.ClearAllPools();
         if (Directory.Exists(_dataDirectory))
         {
             Directory.Delete(_dataDirectory, recursive: true);

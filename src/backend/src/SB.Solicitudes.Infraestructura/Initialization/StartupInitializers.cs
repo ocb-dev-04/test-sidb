@@ -7,6 +7,7 @@ using SB.Solicitudes.Aplicacion.Features.GovernmentEntities;
 using SB.Solicitudes.Dominio.GovernmentEntities;
 using SB.Solicitudes.Infraestructura.GovernmentEntities;
 using SB.Solicitudes.Infraestructura.Persistence;
+using SB.Solicitudes.Infraestructura.Persistence.Seed;
 
 namespace SB.Solicitudes.Infraestructura.Initialization;
 
@@ -18,16 +19,18 @@ internal sealed class DatabaseInitializer(
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (!options.Value.ApplyMigrationsOnStartup)
+        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+
+        if (options.Value.ApplyMigrationsOnStartup)
         {
-            return;
+            InfrastructureLogMessages.ApplyingMigrations(logger);
+            await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync(cancellationToken);
         }
 
-        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-        ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        InfrastructureLogMessages.ApplyingMigrations(logger);
-        await context.Database.MigrateAsync(cancellationToken);
+        if (options.Value.SeedOnStartup)
+        {
+            await scope.ServiceProvider.GetRequiredService<DatabaseSeeder>().SeedAsync(cancellationToken);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

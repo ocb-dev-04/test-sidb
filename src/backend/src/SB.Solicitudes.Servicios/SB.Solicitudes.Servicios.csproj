@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Data\*.txt;Data\*.xlsx" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Data\*.xlsx" CopyToPublishDirectory="PreserveNewest" />
     <InternalsVisibleTo Include="SB.Solicitudes.Servicios.IntegrationTests" />
   </ItemGroup>
 
