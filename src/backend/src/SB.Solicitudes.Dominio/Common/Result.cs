@@ -37,7 +37,9 @@ public class Result
 public interface IFailureFactory<out TSelf>
     where TSelf : Result
 {
+#pragma warning disable CA1000 // Falso positivo del SDK 8: un miembro static abstract se invoca desde el parámetro de tipo
     static abstract TSelf CreateFailure(Error error);
+#pragma warning restore CA1000
 }
 
 public sealed class Result<TValue> : Result, IFailureFactory<Result<TValue>>
