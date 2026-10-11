@@ -129,15 +129,15 @@ resultado y código de error, ids de las entidades afectadas, eventos de negocio
 asignación) y excepciones con su traza.
 
 **No**: contraseñas, tokens, cadenas de conexión, cuerpos completos de las peticiones, valores de parámetros SQL ni
-datos personales en claro. En la solución: Serilog estructurado (consola y archivo diario), un *middleware* agrega
-`UserId` y `TraceId` a cada log, los mensajes se definen con `[LoggerMessage]` (plantillas fijas), el interceptor de
+datos personales en claro. En la solución: Serilog estructurado (consola y archivo diario), Serilog captura el `TraceId` y un *middleware*
+agrega el `UserId` a cada log, los mensajes se definen con `[LoggerMessage]` (plantillas fijas), el interceptor de
 consultas lentas registra el SQL sin valores, y el correo del destinatario se enmascara (`a***@dominio`).
 
 ### 10. ¿Cómo documentarías decisiones técnicas relevantes?
 
 Con **ADR** (*Architecture Decision Records*) versionados junto al código: contexto, decisión, alternativas y
 consecuencias, en archivos Markdown que se revisan en el mismo *pull request* que el cambio. En la entrega están en
-`docs/arquitectura.md` (onion y capas, mediator propio, `Result`, visibilidad por rol, notificaciones, código
+`docs/arquitectura.md` (onion y capas, MediatR, `Result`, visibilidad por rol, notificaciones, código
 consecutivo, almacenes de entidades, seguridad). Lo complemento con:
 
 - README con cómo ejecutar, probar y los usuarios de prueba.

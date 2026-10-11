@@ -10,7 +10,7 @@ gubernamentales** con base de datos en archivo de texto plano.
 | Backend | .NET 8, ASP.NET Core Web API, EF Core 8, SQL Server 2022, SQLite, Serilog, Swagger, JWT |
 | Frontend | React 18, TypeScript (strict), Vite, React Router, TanStack Query, react-hook-form + zod |
 | Arquitectura | Onion: `SB.Solicitudes.Dominio` · `.Aplicacion` · `.Infraestructura` · `.Servicios` |
-| Pruebas | 117 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
+| Pruebas | 118 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
 | Entrega | Docker Compose, migraciones EF + scripts SQL, CI en GitHub Actions |
 
 ---
@@ -157,8 +157,8 @@ siguen RFC 7807 (ProblemDetails) con un `code` estable y el `traceId`.
 src/backend
 ├── src
 │   ├── SB.Solicitudes.Dominio          Entidades, máquina de estados, eventos de dominio, Result
-│   ├── SB.Solicitudes.Aplicacion       Casos de uso, validaciones, mediator, puertos, visibilidad por rol
-│   ├── SB.Solicitudes.Infraestructura  EF Core, SQL Server, SQLite, Excel, JWT, PBKDF2, notificaciones
+│   ├── SB.Solicitudes.Aplicacion       Casos de uso, validaciones, MediatR, puertos, visibilidad por rol
+│   ├── SB.Solicitudes.Infraestructura  EF Core, SQL Server, SQLite, Excel, JWT, hasher de Identity, notificaciones
 │   └── SB.Solicitudes.Servicios        API REST (host), seguridad, Swagger, Serilog, Data/ (texto plano)
 └── tests
     ├── SB.Solicitudes.Dominio.Tests
@@ -174,7 +174,7 @@ docs                                    arquitectura (ADR), evidencias, OpenAPI,
 Decisiones principales (detalle y justificación en [`docs/arquitectura.md`](docs/arquitectura.md)):
 
 - **Onion** con dependencias hacia el centro, verificadas por pruebas de arquitectura.
-- **Mediator propio** con *behaviors* de logging y validación (sin MediatR ni su licencia comercial).
+- **MediatR 12.5.0** (última versión Apache-2.0) con *behaviors* de logging y validación.
 - **Patrón Result** para errores de negocio y **ProblemDetails** en la API; excepciones solo para fallas técnicas.
 - **Especificación de visibilidad por rol** que se traduce a SQL y se evalúa en memoria con la misma regla.
 - **Eventos de dominio + outbox simplificado** para notificaciones: se guardan en la misma transacción y un
@@ -202,7 +202,7 @@ npm test
 |---|---|---|
 | `Dominio.Tests` | 52 | Tabla de transiciones, comentario obligatorio, reapertura por rol, asignación, vencimiento, código, Result, reintentos de notificación |
 | `Aplicacion.Tests` | 23 | Pipeline de validación, handlers con dobles, visibilidad SQL vs memoria, destinatarios de notificaciones, búsqueda e importación de entidades |
-| `Infraestructura.Tests` | 13 | Archivo de texto (escapes, concurrencia), SQLite con migraciones, lectura del Excel real, factory, PBKDF2, JWT, enmascarado de correos |
+| `Infraestructura.Tests` | 14 | Archivo de texto (comillas y separadores, archivo editado a mano, concurrencia), SQLite con migraciones, lectura del Excel real, factory, hasher de claves, JWT, enmascarado de correos |
 | `ArchitectureTests` | 12 | Dependencias entre capas y convenciones de nombres de la especificación |
 | `Servicios.IntegrationTests` | 17 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
 | Frontend (Vitest) | 39 | Etiquetas, traducción de errores, esquemas zod, permisos por rol en la interfaz, cliente HTTP, login, navegación |

@@ -134,6 +134,21 @@ renamed (`IDomainEventSubscriber`, `RequestPipelineNext`, `ApiTestGroup`).
 **Fix:** the API image builds with the repo root as context (`docker-compose.yml`: `context: .`,
 `dockerfile: src/backend/Dockerfile`) and copies `.editorconfig`; a root `.dockerignore` trims the context.
 
+## E006 — Docker/CI fail with CA1000 on a `static abstract` interface member
+**Symptom:** `dotnet build` passes locally (SDK 10) but `docker compose build api` fails: `CA1000 Do not declare static
+members on generic types` on `IFailureFactory<TSelf>.CreateFailure`.
+**Root cause:** the SDK 8 analyzers (Dockerfile, CI) flag `static abstract` members; newer analyzers do not.
+**Fix:** `#pragma warning disable CA1000` with the reason around that member.
+**Rule:** `global.json` rolls forward to SDK 10 locally; after touching analyzer-sensitive code run
+`docker compose build api` (SDK 8) before committing.
+
+## E007 — Library behavior assumed instead of tested
+**Symptom:** `PasswordHasher<T>.VerifyHashedPassword` threw `FormatException` on a malformed hash (expected `Failed`);
+CsvHelper threw `BadDataException` on an unquoted field containing quotes (`Jardín Botánico ... "Dr. ..."`).
+**Fix:** `IdentityPasswordHasher.Verify` maps `FormatException` to `false`; the CSV configuration sets
+`BadDataFound = null`. Both cases have tests.
+**Rule:** when replacing in-repo code with a library, keep the old edge-case tests and add one with real data.
+
 ---
 
 ## Template

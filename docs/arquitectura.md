@@ -13,8 +13,8 @@ flowchart LR
     end
     subgraph "SB.Solicitudes (Onion)"
         S[Servicios<br/>API REST, JWT, Swagger, Serilog]
-        I[Infraestructura<br/>EF Core, SQL Server, SQLite, Excel,<br/>JWT, PBKDF2, worker de notificaciones]
-        A[Aplicacion<br/>casos de uso, validaciones,<br/>mediator, puertos]
+        I[Infraestructura<br/>EF Core, SQL Server, SQLite, Excel,<br/>JWT, hasher de Identity, worker de notificaciones]
+        A[Aplicacion<br/>casos de uso, validaciones,<br/>MediatR, puertos]
         D[Dominio<br/>entidades, máquina de estados,<br/>eventos, Result]
     end
     DB[(SQL Server)]
@@ -36,8 +36,8 @@ flowchart LR
 | Proyecto | Responsabilidad | Depende de |
 |---|---|---|
 | `SB.Solicitudes.Dominio` | Entidades con invariantes (`ServiceRequest`, `StatusHistory`, `Comment`, `User`, `Area`, `RequestType`, `Notification`, `GovernmentEntity`), tabla de transiciones, eventos de dominio, `Result`/`Error`. | Nada |
-| `SB.Solicitudes.Aplicacion` | Casos de uso (comandos y consultas), validaciones FluentValidation, mediator con *pipeline*, especificación de visibilidad por rol, puertos (repositorios, generador de código, JWT, hasher, almacenes de entidades). | Dominio |
-| `SB.Solicitudes.Infraestructura` | Implementaciones de los puertos: EF Core + SQL Server, migraciones, carga inicial de datos, generador `SOL-AAAA-NNNN`, JWT, PBKDF2, canales y *worker* de notificaciones, almacenes de texto plano / SQLite / Excel. | Aplicacion |
+| `SB.Solicitudes.Aplicacion` | Casos de uso (comandos y consultas), validaciones FluentValidation, MediatR con *pipeline*, especificación de visibilidad por rol, puertos (repositorios, generador de código, JWT, hasher, almacenes de entidades). | Dominio |
+| `SB.Solicitudes.Infraestructura` | Implementaciones de los puertos: EF Core + SQL Server, migraciones, carga inicial de datos, generador `SOL-AAAA-NNNN`, JWT, `PasswordHasher` de Identity, canales y *worker* de notificaciones, almacenes de texto plano / SQLite / Excel. | Aplicacion |
 | `SB.Solicitudes.Servicios` | Host de la API (los "servicios" REST): controllers, autenticación y *policies*, ProblemDetails, Serilog, Swagger, CORS, *rate limiting*. Es la raíz de composición. | Aplicacion, Infraestructura |
 
 Las dependencias apuntan hacia el centro. `tests/SB.Solicitudes.ArchitectureTests` lo verifica en cada build:
@@ -48,7 +48,7 @@ Dominio y Aplicación no pueden referenciar EF Core, ASP.NET Core ni capas exter
 ```mermaid
 sequenceDiagram
     participant C as Controller
-    participant M as ISender
+    participant M as ISender (MediatR)
     participant L as LoggingBehavior
     participant V as ValidationBehavior
     participant H as Handler
@@ -56,7 +56,7 @@ sequenceDiagram
     participant U as DbContext (UnitOfWork)
     participant N as Suscriptor de eventos
 
-    C->>M: SendAsync(comando)
+    C->>M: Send(comando)
     M->>L: pipeline
     L->>V: next()
     V-->>C: Result.Failure(ValidationError) si hay errores
@@ -64,7 +64,7 @@ sequenceDiagram
     H->>E: ChangeStatus(...) → Result
     E-->>H: evento ServiceRequestStatusChanged
     H->>U: SaveChangesAsync()
-    U->>N: despacha eventos (misma transacción)
+    U->>N: publica eventos con IPublisher (misma transacción)
     N->>U: agrega Notificaciones pendientes
     U-->>H: COMMIT
     H-->>C: Result.Success → 204 / ProblemDetails
@@ -84,17 +84,22 @@ especificación; el resto del código está en inglés.
 **Consecuencias.** Se respeta literalmente la especificación sin agregar un quinto proyecto. Las reglas de
 dependencia se comprueban con NetArchTest.
 
-## ADR-002 · Mediator propio en lugar de MediatR
+## ADR-002 · MediatR 12.5.0 como mediator
 
 **Contexto.** Separar controllers de casos de uso y tener un punto único para validación y logging. MediatR cambió
-a licencia comercial en 2025.
+a licencia comercial a partir de la versión 13 (2025).
 
-**Decisión.** Un mediator mínimo (`ISender`, `ICommand`/`IQuery`, `IPipelineBehavior`) de ~100 líneas, con
-*dispatchers* genéricos cacheados por tipo (sin `dynamic` ni reflexión por petición). *Behaviors*:
-`LoggingPipelineBehavior` (tiempo y resultado) y `ValidationPipelineBehavior` (FluentValidation).
+**Decisión.** MediatR **12.5.0**, la última versión Apache-2.0, fijada en `Directory.Packages.props`. Sobre ella:
+`ICommand`/`IQuery` (devuelven `Result<T>`) y sus handlers, que exponen `HandleAsync` para respetar el sufijo `Async`
+de la especificación. *Behaviors*: `LoggingPipelineBehavior` (tiempo y resultado) y `ValidationPipelineBehavior`
+(FluentValidation; crea el fallo con `IFailureFactory`, sin reflexión). Los eventos de dominio se publican con
+`IPublisher` envueltos en `DomainEventNotification<T>`, de modo que el Dominio no referencia MediatR.
 
-**Consecuencias.** Sin dependencia externa ni dudas de licencia; controllers de una línea. Costo: mantener ese
-código (cubierto por `SenderPipelineTests`).
+**Alternativas.** Un mediator propio (~100 líneas, se descartó: reinventa una librería conocida) y MediatR 13+
+(exige licencia). Si el proyecto creciera, la migración natural es `Mediator` (generado en compilación, MIT).
+
+**Consecuencias.** Controllers de una línea y un *pipeline* que cualquier desarrollador .NET reconoce; cubierto por
+`MediatorPipelineTests` y las pruebas de integración.
 
 ## ADR-003 · Patrón Result para errores esperados
 
@@ -169,7 +174,8 @@ Se agregó la posibilidad de consultar también SQLite y el Excel original.
 - La fábrica usa *keyed services* de .NET 8; el enum `GovernmentEntityDataSource` es la clave. Pedir un *writer*
   de Excel devuelve el error `governmentEntity.sourceReadOnly`, no una excepción.
 - Fuente por defecto en `appsettings` (`TextFile`); el parámetro `source` permite elegir otra en la demo.
-- Archivo `Data/entidades-gubernamentales.txt` delimitado por `|`, con encabezado, escapes y escritura atómica
+- Archivo `Data/entidades-gubernamentales.txt` delimitado por `|` y leído/escrito con CsvHelper (comillas,
+  separadores y saltos de línea), con encabezado y escritura atómica
   (archivo temporal + `File.Move`), protegido con `SemaphoreSlim`.
 - Excel leído por **nombre de encabezado** (no por posición) y cacheado mientras no cambie el archivo.
 - SQLite se gestiona con migraciones EF Core propias (`GovernmentEntities/Migrations`, historial en
