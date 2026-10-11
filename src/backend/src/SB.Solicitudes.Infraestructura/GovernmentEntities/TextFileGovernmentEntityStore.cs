@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.Extensions.Options;
 using SB.Solicitudes.Aplicacion.Features.GovernmentEntities;
 using SB.Solicitudes.Dominio.GovernmentEntities;
@@ -7,25 +9,31 @@ using SB.Solicitudes.Dominio.GovernmentEntities;
 namespace SB.Solicitudes.Infraestructura.GovernmentEntities;
 
 /// <summary>
-/// Base de datos en archivo de texto plano delimitado por '|', con encabezado y escritura atómica.
+/// Base de datos en archivo de texto plano delimitado por '|' (CsvHelper), con encabezado y escritura atómica.
 /// </summary>
 internal sealed class TextFileGovernmentEntityStore(IOptions<GovernmentEntityStorageOptions> options)
     : IGovernmentEntityReader, IGovernmentEntityWriter, IDisposable
 {
-    public const string HEADER = "Id|Nombre|Categoria|PoderDelEstado|Sector";
+    public const string DELIMITER = "|";
+    public const string HEADER = $"{ID_COLUMN}{DELIMITER}{NAME_COLUMN}{DELIMITER}{CATEGORY_COLUMN}{DELIMITER}{STATE_BRANCH_COLUMN}{DELIMITER}{SECTOR_COLUMN}";
 
-    private const char DELIMITER = '|';
-    private const char ESCAPE = '\\';
-    private const char ESCAPED_NEW_LINE = 'n';
-    private const int FIELDS_PER_LINE = 5;
-    private const int ID_INDEX = 0;
-    private const int NAME_INDEX = 1;
-    private const int CATEGORY_INDEX = 2;
-    private const int STATE_BRANCH_INDEX = 3;
-    private const int SECTOR_INDEX = 4;
+    private const string ID_COLUMN = "Id";
+    private const string NAME_COLUMN = "Nombre";
+    private const string CATEGORY_COLUMN = "Categoria";
+    private const string STATE_BRANCH_COLUMN = "PoderDelEstado";
+    private const string SECTOR_COLUMN = "Sector";
     private const string TEMPORARY_EXTENSION = ".tmp";
 
     private static readonly UTF8Encoding UTF8_WITHOUT_BOM = new(encoderShouldEmitUTF8Identifier: false);
+
+    private static readonly CsvConfiguration CSV_CONFIGURATION = new(CultureInfo.InvariantCulture)
+    {
+        Delimiter = DELIMITER,
+        IgnoreBlankLines = true,
+
+        // Un archivo editado a mano puede traer comillas sin escapar ("Dr. Rafael M. Moscoso"): se leen tal cual.
+        BadDataFound = null,
+    };
 
     private readonly SemaphoreSlim _fileLock = new(1, 1);
 
@@ -85,49 +93,6 @@ internal sealed class TextFileGovernmentEntityStore(IOptions<GovernmentEntitySto
 
     public void Dispose() => _fileLock.Dispose();
 
-    internal static string Escape(string value)
-        => value
-            .Replace(ESCAPE.ToString(), string.Concat(ESCAPE, ESCAPE), StringComparison.Ordinal)
-            .Replace(DELIMITER.ToString(), string.Concat(ESCAPE, DELIMITER), StringComparison.Ordinal)
-            .Replace(Environment.NewLine, string.Concat(ESCAPE, ESCAPED_NEW_LINE), StringComparison.Ordinal)
-            .Replace("\n", string.Concat(ESCAPE, ESCAPED_NEW_LINE), StringComparison.Ordinal);
-
-    internal static List<string> SplitLine(string line)
-    {
-        List<string> fields = [];
-        StringBuilder current = new();
-        for (int index = 0; index < line.Length; index++)
-        {
-            char character = line[index];
-            if (character == ESCAPE && index + 1 < line.Length)
-            {
-                char next = line[++index];
-                current.Append(next == ESCAPED_NEW_LINE ? '\n' : next);
-            }
-            else if (character == DELIMITER)
-            {
-                fields.Add(current.ToString());
-                current.Clear();
-            }
-            else
-            {
-                current.Append(character);
-            }
-        }
-
-        fields.Add(current.ToString());
-        return fields;
-    }
-
-    private static string ToLine(GovernmentEntity entity)
-        => string.Join(
-            DELIMITER,
-            entity.Id.ToString(CultureInfo.InvariantCulture),
-            Escape(entity.Name),
-            Escape(entity.Category),
-            Escape(entity.StateBranch),
-            Escape(entity.Sector));
-
     private async Task<TResult> MutateAsync<TResult>(Func<List<GovernmentEntity>, TResult> mutation, CancellationToken cancellationToken)
     {
         await _fileLock.WaitAsync(cancellationToken);
@@ -151,19 +116,17 @@ internal sealed class TextFileGovernmentEntityStore(IOptions<GovernmentEntitySto
             return [];
         }
 
-        string[] lines = await File.ReadAllLinesAsync(FilePath, UTF8_WITHOUT_BOM, cancellationToken);
-        return lines
-            .Skip(1)
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .Select(SplitLine)
-            .Where(fields => fields.Count == FIELDS_PER_LINE)
-            .Select(fields => GovernmentEntity.Restore(
-                int.Parse(fields[ID_INDEX], NumberStyles.None, CultureInfo.InvariantCulture),
-                fields[NAME_INDEX],
-                fields[CATEGORY_INDEX],
-                fields[STATE_BRANCH_INDEX],
-                fields[SECTOR_INDEX]))
-            .ToArray();
+        using StreamReader reader = new(FilePath, UTF8_WITHOUT_BOM);
+        using CsvReader csv = new(reader, CSV_CONFIGURATION);
+        csv.Context.RegisterClassMap<TextFileRowMap>();
+
+        List<GovernmentEntity> entities = [];
+        await foreach (TextFileRow row in csv.GetRecordsAsync<TextFileRow>(cancellationToken))
+        {
+            entities.Add(GovernmentEntity.Restore(row.Id, row.Name, row.Category, row.StateBranch, row.Sector));
+        }
+
+        return entities;
     }
 
     // Se escribe en un archivo temporal y luego se reemplaza: un fallo a mitad nunca deja el archivo corrupto.
@@ -176,8 +139,49 @@ internal sealed class TextFileGovernmentEntityStore(IOptions<GovernmentEntitySto
         }
 
         string temporaryPath = FilePath + TEMPORARY_EXTENSION;
-        IEnumerable<string> lines = entities.OrderBy(entity => entity.Id).Select(ToLine).Prepend(HEADER);
-        await File.WriteAllLinesAsync(temporaryPath, lines, UTF8_WITHOUT_BOM, cancellationToken);
+        IEnumerable<TextFileRow> rows = entities
+            .OrderBy(entity => entity.Id)
+            .Select(entity => new TextFileRow
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Category = entity.Category,
+                StateBranch = entity.StateBranch,
+                Sector = entity.Sector,
+            });
+
+        await using (StreamWriter writer = new(temporaryPath, append: false, UTF8_WITHOUT_BOM))
+        await using (CsvWriter csv = new(writer, CSV_CONFIGURATION))
+        {
+            csv.Context.RegisterClassMap<TextFileRowMap>();
+            await csv.WriteRecordsAsync(rows, cancellationToken);
+        }
+
         File.Move(temporaryPath, FilePath, overwrite: true);
+    }
+
+    private sealed class TextFileRow
+    {
+        public int Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string Category { get; init; } = string.Empty;
+
+        public string StateBranch { get; init; } = string.Empty;
+
+        public string Sector { get; init; } = string.Empty;
+    }
+
+    private sealed class TextFileRowMap : ClassMap<TextFileRow>
+    {
+        public TextFileRowMap()
+        {
+            Map(row => row.Id).Name(ID_COLUMN);
+            Map(row => row.Name).Name(NAME_COLUMN);
+            Map(row => row.Category).Name(CATEGORY_COLUMN);
+            Map(row => row.StateBranch).Name(STATE_BRANCH_COLUMN);
+            Map(row => row.Sector).Name(SECTOR_COLUMN);
+        }
     }
 }

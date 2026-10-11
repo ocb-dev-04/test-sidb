@@ -6,8 +6,9 @@ namespace SB.Solicitudes.Infraestructura.Tests.GovernmentEntities;
 
 public sealed class TextFileGovernmentEntityStoreTests : IDisposable
 {
-    private const string TRICKY_NAME = "Entidad | con \\ separadores";
-    private const string CATEGORY = "Organismo Descentralizado Funcionalmente";
+    private const string TRICKY_NAME = "Entidad | con \\ separadores, \"comillas\"\ny salto de línea";
+    private const string QUOTED_NAME = "Jardín Botánico Nacional \"Dr. Rafael M. Moscoso\"";
+    private const string CATEGORY ="Organismo Descentralizado Funcionalmente";
     private const string STATE_BRANCH = "Poder Ejecutivo";
     private const string SECTOR = "Industria, Comercio y MIPYMES";
     private const string UPDATED_NAME = "Entidad renombrada";
@@ -36,6 +37,19 @@ public sealed class TextFileGovernmentEntityStoreTests : IDisposable
         stored[0].Name.ShouldBe(TRICKY_NAME);
         stored[0].Sector.ShouldBe(SECTOR);
         File.ReadAllLines(Path.Combine(_directory, FILE_NAME))[0].ShouldBe(TextFileGovernmentEntityStore.HEADER);
+    }
+
+    [Fact]
+    public async Task GetAllShouldReadHandWrittenLinesWithQuotesInsideUnquotedFields()
+    {
+        Directory.CreateDirectory(_directory);
+        await File.WriteAllLinesAsync(
+            Path.Combine(_directory, FILE_NAME),
+            [TextFileGovernmentEntityStore.HEADER, $"1|{QUOTED_NAME}|{CATEGORY}|{STATE_BRANCH}|{SECTOR}"]);
+
+        IReadOnlyList<GovernmentEntity> stored = await _store.GetAllAsync(CancellationToken.None);
+
+        stored.ShouldHaveSingleItem().Name.ShouldBe(QUOTED_NAME);
     }
 
     [Fact]
