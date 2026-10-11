@@ -33,13 +33,22 @@ public class Result
     public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
 }
 
-public sealed class Result<TValue> : Result
+// Permite crear un fallo de un Result<T> conocido solo por su tipo genérico (pipeline de validación).
+public interface IFailureFactory<out TSelf>
+    where TSelf : Result
+{
+    static abstract TSelf CreateFailure(Error error);
+}
+
+public sealed class Result<TValue> : Result, IFailureFactory<Result<TValue>>
 {
     private readonly TValue? _value;
 
     internal Result(TValue? value, bool isSuccess, Error error)
         : base(isSuccess, error)
         => _value = value;
+
+    static Result<TValue> IFailureFactory<Result<TValue>>.CreateFailure(Error error) => Failure<TValue>(error);
 
     public TValue Value => IsSuccess
         ? _value!

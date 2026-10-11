@@ -1,4 +1,5 @@
 using FluentValidation;
+using MediatR;
 using SB.Solicitudes.Aplicacion.Abstractions.Authentication;
 using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Abstractions.Persistence;
@@ -108,7 +109,7 @@ internal sealed class UpdateAreaCommandHandler(IAreaRepository areaRepository, I
 
         area.Update(request.Name, request.IsActive);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return Unit.VALUE;
+        return Unit.Value;
     }
 }
 
@@ -158,6 +159,6 @@ internal sealed class UpdateRequestTypeCommandHandler(IRequestTypeRepository req
 
         requestType.Update(request.Name, request.Description, request.IsActive);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return Unit.VALUE;
+        return Unit.Value;
     }
 }

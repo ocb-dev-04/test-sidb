@@ -1,4 +1,5 @@
 using FluentValidation;
+using MediatR;
 using SB.Solicitudes.Aplicacion.Abstractions.Authentication;
 using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Abstractions.Persistence;
@@ -89,6 +90,6 @@ internal sealed class UpdateUserCommandHandler(
 
         user.Update(request.FullName, request.Role, request.IsActive);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return Unit.VALUE;
+        return Unit.Value;
     }
 }

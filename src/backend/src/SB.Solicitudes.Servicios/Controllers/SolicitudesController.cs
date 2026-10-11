@@ -1,6 +1,6 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Abstractions.Pagination;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests.AddComment;

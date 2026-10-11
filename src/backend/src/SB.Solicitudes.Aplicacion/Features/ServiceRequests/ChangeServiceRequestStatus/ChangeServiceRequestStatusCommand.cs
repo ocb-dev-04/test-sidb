@@ -1,4 +1,5 @@
 using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using SB.Solicitudes.Aplicacion.Abstractions;
 using SB.Solicitudes.Aplicacion.Abstractions.Authentication;
@@ -59,6 +60,6 @@ internal sealed class ChangeServiceRequestStatusCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         ApplicationLogMessages.ServiceRequestStatusChanged(logger, serviceRequest.Id, request.NewStatus, currentUser.UserId);
-        return Unit.VALUE;
+        return Unit.Value;
     }
 }

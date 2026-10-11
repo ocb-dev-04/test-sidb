@@ -1,5 +1,5 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Abstractions.Pagination;
 using SB.Solicitudes.Aplicacion.Features.Dashboard;
 using SB.Solicitudes.Aplicacion.Features.Notifications;

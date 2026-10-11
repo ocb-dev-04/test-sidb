@@ -1,23 +1,24 @@
 using FluentValidation;
 using FluentValidation.Results;
-using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
+using MediatR;
 using SB.Solicitudes.Dominio.Common;
 
 namespace SB.Solicitudes.Aplicacion.Abstractions.Behaviors;
 
 internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : notnull
+    where TResponse : Result, IFailureFactory<TResponse>
 {
-    public async Task<Result<TResponse>> HandleAsync(
+    public async Task<TResponse> Handle(
         TRequest request,
-        RequestPipelineNext<TResponse> next,
+        RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
         IValidator<TRequest>[] requestValidators = validators.ToArray();
         if (requestValidators.Length == 0)
         {
-            return await next();
+            return await next(cancellationToken);
         }
 
         ValidationContext<TRequest> context = new(request);
@@ -30,7 +31,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerabl
 
         if (failures.Count == 0)
         {
-            return await next();
+            return await next(cancellationToken);
         }
 
         Dictionary<string, string[]> errors = failures
@@ -40,7 +41,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerabl
                 group => group.Select(failure => failure.ErrorMessage).Distinct(StringComparer.Ordinal).ToArray(),
                 StringComparer.Ordinal);
 
-        return Result.Failure<TResponse>(new ValidationError(errors));
+        return TResponse.CreateFailure(new ValidationError(errors));
     }
 
     private static string ToCamelCase(string propertyName)

@@ -1,4 +1,5 @@
 using FluentValidation;
+using MediatR;
 using SB.Solicitudes.Aplicacion.Abstractions.Authentication;
 using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Abstractions.Pagination;
@@ -80,6 +81,6 @@ internal sealed class MarkNotificationAsReadCommandHandler(
 
         notification.MarkAsRead(timeProvider.GetUtcNow().UtcDateTime);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return Unit.VALUE;
+        return Unit.Value;
     }
 }

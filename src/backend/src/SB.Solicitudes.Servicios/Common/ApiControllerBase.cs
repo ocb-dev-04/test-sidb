@@ -1,6 +1,6 @@
 using System.Net.Mime;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Dominio.Common;
 
 namespace SB.Solicitudes.Servicios.Common;
@@ -16,15 +16,15 @@ public abstract class ApiControllerBase(ISender sender) : ControllerBase
     protected ISender Sender { get; } = sender;
 
     protected async Task<IActionResult> SendAsync<TResponse>(
-        IRequest<TResponse> request,
+        IRequest<Result<TResponse>> request,
         Func<TResponse, IActionResult> onSuccess,
         CancellationToken cancellationToken)
     {
-        Result<TResponse> result = await Sender.SendAsync(request, cancellationToken);
+        Result<TResponse> result = await Sender.Send(request, cancellationToken);
         return result.IsSuccess ? onSuccess(result.Value) : HandleFailure(result.Error);
     }
 
-    protected Task<IActionResult> SendForNoContentAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken)
+    protected Task<IActionResult> SendForNoContentAsync<TResponse>(IRequest<Result<TResponse>> request, CancellationToken cancellationToken)
         => SendAsync(request, _ => NoContent(), cancellationToken);
 
     protected IActionResult HandleFailure(Error error)

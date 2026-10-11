@@ -1,4 +1,5 @@
 using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SB.Solicitudes.Aplicacion.Abstractions;
@@ -130,7 +131,7 @@ internal sealed class UpdateGovernmentEntityCommandHandler(
 
         governmentEntity.Update(request.Name, request.Category, request.StateBranch, request.Sector);
         bool updated = await writer.Value.UpdateAsync(governmentEntity, cancellationToken);
-        return updated ? Unit.VALUE : GovernmentEntityErrors.NOT_FOUND;
+        return updated ? Unit.Value : GovernmentEntityErrors.NOT_FOUND;
     }
 }
 
@@ -148,7 +149,7 @@ internal sealed class DeleteGovernmentEntityCommandHandler(
         }
 
         bool deleted = await writer.Value.DeleteAsync(request.GovernmentEntityId, cancellationToken);
-        return deleted ? Unit.VALUE : GovernmentEntityErrors.NOT_FOUND;
+        return deleted ? Unit.Value : GovernmentEntityErrors.NOT_FOUND;
     }
 }
 

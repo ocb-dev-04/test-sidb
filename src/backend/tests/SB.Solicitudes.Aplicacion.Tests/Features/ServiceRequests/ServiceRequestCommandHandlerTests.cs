@@ -1,5 +1,5 @@
+using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
-using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Abstractions.Persistence;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests.AddComment;

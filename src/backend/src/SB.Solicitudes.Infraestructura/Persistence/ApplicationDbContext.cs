@@ -12,10 +12,10 @@ namespace SB.Solicitudes.Infraestructura.Persistence;
 
 public sealed class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    IDomainEventDispatcher domainEventDispatcher)
+    IDomainEventPublisher domainEventPublisher)
     : DbContext(options), IUnitOfWork
 {
-    private const int MAXIMUM_DISPATCH_ROUNDS = 10;
+    private const int MAXIMUM_PUBLISH_ROUNDS = 10;
 
     public DbSet<User> Users => Set<User>();
 
@@ -37,7 +37,7 @@ public sealed class ApplicationDbContext(
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await DispatchDomainEventsAsync(cancellationToken);
+        await PublishDomainEventsAsync(cancellationToken);
         return await base.SaveChangesAsync(cancellationToken);
     }
 
@@ -53,10 +53,10 @@ public sealed class ApplicationDbContext(
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         => configurationBuilder.UseUtcDateTimes();
 
-    // Los eventos se despachan antes de confirmar: las notificaciones que generan se guardan en la misma transacción.
-    private async Task DispatchDomainEventsAsync(CancellationToken cancellationToken)
+    // Los eventos se publican antes de confirmar: las notificaciones que generan se guardan en la misma transacción.
+    private async Task PublishDomainEventsAsync(CancellationToken cancellationToken)
     {
-        for (int round = 0; round < MAXIMUM_DISPATCH_ROUNDS; round++)
+        for (int round = 0; round < MAXIMUM_PUBLISH_ROUNDS; round++)
         {
             IDomainEvent[] domainEvents = ChangeTracker
                 .Entries<IHasDomainEvents>()
@@ -74,9 +74,9 @@ public sealed class ApplicationDbContext(
                 return;
             }
 
-            await domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
+            await domainEventPublisher.PublishAsync(domainEvents, cancellationToken);
         }
 
-        throw new InvalidOperationException("Domain event dispatching did not converge.");
+        throw new InvalidOperationException("Domain event publishing did not converge.");
     }
 }

@@ -19,11 +19,11 @@ public sealed class ApplicationDbContextDesignTimeFactory : IDesignTimeDbContext
             .UseSqlServer(Environment.GetEnvironmentVariable(CONNECTION_STRING_VARIABLE) ?? DEFAULT_CONNECTION_STRING)
             .Options;
 
-        return new ApplicationDbContext(options, new NoDomainEventDispatcher());
+        return new ApplicationDbContext(options, new NoDomainEventPublisher());
     }
 
-    private sealed class NoDomainEventDispatcher : IDomainEventDispatcher
+    private sealed class NoDomainEventPublisher : IDomainEventPublisher
     {
-        public Task DispatchAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task PublishAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

@@ -1,7 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using SB.Solicitudes.Aplicacion.Abstractions.Messaging;
 using SB.Solicitudes.Aplicacion.Features.Authentication;
 using SB.Solicitudes.Aplicacion.Features.Users;
 using SB.Solicitudes.Servicios.Common;
