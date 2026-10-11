@@ -55,7 +55,8 @@ internal sealed class GovernmentEntitiesInitializer(
         await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await services.GetRequiredService<GovernmentEntitiesDbContext>().Database.EnsureCreatedAsync(cancellationToken);
+        // SQLite evoluciona con migraciones EF, igual que SQL Server (historial en __EFMigrationsHistory).
+        await services.GetRequiredService<GovernmentEntitiesDbContext>().Database.MigrateAsync(cancellationToken);
 
         IReadOnlyList<GovernmentEntity> excelEntities = await services
             .GetRequiredKeyedService<IGovernmentEntityReader>(GovernmentEntityDataSource.Excel)

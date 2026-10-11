@@ -172,6 +172,8 @@ Se agregó la posibilidad de consultar también SQLite y el Excel original.
 - Archivo `Data/entidades-gubernamentales.txt` delimitado por `|`, con encabezado, escapes y escritura atómica
   (archivo temporal + `File.Move`), protegido con `SemaphoreSlim`.
 - Excel leído por **nombre de encabezado** (no por posición) y cacheado mientras no cambie el archivo.
+- SQLite se gestiona con migraciones EF Core propias (`GovernmentEntities/Migrations`, historial en
+  `__EFMigrationsHistory`), igual que SQL Server; al arrancar se aplican con `MigrateAsync`.
 - Al arrancar, si el texto o SQLite están vacíos se cargan desde el Excel; `POST .../importaciones` reemplaza una
   fuente con otra.
 - El filtrado se hace en memoria (≈180 registros) para que las tres fuentes respondan idéntico, incluida la

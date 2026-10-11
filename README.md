@@ -10,7 +10,7 @@ gubernamentales** con base de datos en archivo de texto plano.
 | Backend | .NET 8, ASP.NET Core Web API, EF Core 8, SQL Server 2022, SQLite, Serilog, Swagger, JWT |
 | Frontend | React 18, TypeScript (strict), Vite, React Router, TanStack Query, react-hook-form + zod |
 | Arquitectura | Onion: `SB.Solicitudes.Dominio` · `.Aplicacion` · `.Infraestructura` · `.Servicios` |
-| Pruebas | 115 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
+| Pruebas | 117 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
 | Entrega | Docker Compose, migraciones EF + scripts SQL, CI en GitHub Actions |
 
 ---
@@ -74,6 +74,8 @@ npm run dev                                                                  # h
 - **Datos de ejemplo al primer arranque**: la API revisa cada tabla y solo la llena si está vacía (6 áreas, 5 tipos
   de solicitud, los 5 usuarios de prueba y 8 solicitudes con historial y comentarios, con fechas relativas al día de
   arranque). Nunca sobrescribe datos existentes; se desactiva con `Database:SeedOnStartup=false`.
+- **SQLite** (fuente opcional de entidades gubernamentales): también con migraciones EF Core
+  (`--context GovernmentEntitiesDbContext`), aplicadas automáticamente al arrancar.
 - Motor: SQL Server 2019+ (probado con 2022). Las tablas y columnas usan los nombres en español del modelo de la
   prueba (`Solicitudes`, `HistorialEstados`, `FechaCompromiso`...).
 
@@ -200,7 +202,7 @@ npm test
 |---|---|---|
 | `Dominio.Tests` | 52 | Tabla de transiciones, comentario obligatorio, reapertura por rol, asignación, vencimiento, código, Result, reintentos de notificación |
 | `Aplicacion.Tests` | 23 | Pipeline de validación, handlers con dobles, visibilidad SQL vs memoria, destinatarios de notificaciones, búsqueda e importación de entidades |
-| `Infraestructura.Tests` | 11 | Archivo de texto (escapes, concurrencia), lectura del Excel real, factory, PBKDF2, JWT, enmascarado de correos |
+| `Infraestructura.Tests` | 13 | Archivo de texto (escapes, concurrencia), SQLite con migraciones, lectura del Excel real, factory, PBKDF2, JWT, enmascarado de correos |
 | `ArchitectureTests` | 12 | Dependencias entre capas y convenciones de nombres de la especificación |
 | `Servicios.IntegrationTests` | 17 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
 | Frontend (Vitest) | 39 | Etiquetas, traducción de errores, esquemas zod, permisos por rol en la interfaz, cliente HTTP, login, navegación |
