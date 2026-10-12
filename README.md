@@ -19,6 +19,9 @@ gubernamentales** con base de datos en archivo de texto plano.
 
 Requisito: Docker Desktop.
 
+> En Windows, si el clon falla con *Filename too long*, active las rutas largas con
+> `git config --global core.longpaths true` o clone en una ruta corta (por ejemplo `C:\src`).
+
 ```bash
 docker compose up --build
 ```
