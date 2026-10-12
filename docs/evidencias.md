@@ -37,24 +37,30 @@ responsable.
 
 Validaciones visibles que replican las del backend (obligatorios y longitudes máximas).
 
-## 6. Entidades gubernamentales · Consulta
+## 6. Entidades gubernamentales · Consulta (archivo de texto)
 
-![Entidades gubernamentales](evidencias/06-entidades-consulta.png)
+![Entidades - archivo de texto](evidencias/06-entidades-consulta-texto.png)
 
-Datos en `Data/entidades-gubernamentales.txt`. Acciones de editar y eliminar para administradores. Las fuentes
-SQLite y Excel (solo lectura) se usan desde la API con el parámetro `source`.
+Fuente predeterminada: `Data/entidades-gubernamentales.txt`. Acciones de editar y eliminar para administradores.
 
-## 7. Entidades gubernamentales · Crear registro
+## 7. Entidades gubernamentales · Consulta (Excel, solo lectura)
 
-![Crear entidad](evidencias/07-entidades-crear.png)
+![Entidades - Excel](evidencias/07-entidades-consulta-excel.png)
 
-## 8. Administración · Usuarios
+La misma vista sobre el Excel original: las acciones de escritura quedan deshabilitadas y la API las rechaza con
+`governmentEntity.sourceReadOnly`.
 
-![Usuarios](evidencias/08-administracion-usuarios.png)
+## 8. Entidades gubernamentales · Crear registro
 
-## 9. Vista del Solicitante
+![Crear entidad](evidencias/08-entidades-crear.png)
 
-![Detalle visto por el solicitante](evidencias/09-solicitante-detalle-sin-internos.png)
+## 9. Administración · Usuarios
+
+![Usuarios](evidencias/09-administracion-usuarios.png)
+
+## 10. Vista del Solicitante
+
+![Detalle visto por el solicitante](evidencias/10-solicitante-detalle-sin-internos.png)
 
 La misma solicitud del punto 4 vista por su solicitante: sin comentarios internos y sin acciones de gestión.
 
@@ -65,7 +71,7 @@ La misma solicitud del punto 4 vista por su solicitante: sin comentarios interno
 2. Entrar como `analista1@solicitudes.local`, abrir la solicitud, asignarla a sí misma, pasarla a *En análisis*
    y luego intentar *Cerrada* sin comentario (se rechaza) y con comentario (se acepta).
 3. Volver como solicitante: la campana muestra los cambios y el detalle conserva el historial completo.
-4. Entrar como `admin@solicitudes.local` y en *Entidades gubernamentales* crear, editar y eliminar una entidad.
-   Desde Swagger, repetir con `source=Sqlite` y comprobar que con `source=Excel` la escritura se rechaza.
+4. Entrar como `admin@solicitudes.local` y en *Entidades gubernamentales* alternar entre las fuentes, crear,
+   editar y eliminar una entidad en el archivo de texto, y comprobar que en Excel no se permite.
 5. Revisar `src/backend/src/SB.Solicitudes.Servicios/simulated-mail/` (o el contenedor de la API) para ver los
    correos simulados generados.

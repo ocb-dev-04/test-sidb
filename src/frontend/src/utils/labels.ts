@@ -1,5 +1,6 @@
 import type {
   CommentVisibility,
+  GovernmentEntityDataSource,
   NotificationType,
   ServiceRequestPriority,
   ServiceRequestSortField,
@@ -33,6 +34,12 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const VISIBILITY_LABELS: Record<CommentVisibility, string> = {
   Public: 'Público',
   Internal: 'Interno',
+};
+
+export const DATA_SOURCE_LABELS: Record<GovernmentEntityDataSource, string> = {
+  TextFile: 'Archivo de texto',
+  Sqlite: 'SQLite',
+  Excel: 'Excel (solo lectura)',
 };
 
 export const SORT_FIELD_LABELS: Record<ServiceRequestSortField, string> = {
@@ -70,4 +77,8 @@ export function roleLabel(role: UserRole): string {
 
 export function visibilityLabel(visibility: CommentVisibility): string {
   return VISIBILITY_LABELS[visibility] ?? visibility;
+}
+
+export function dataSourceLabel(source: GovernmentEntityDataSource): string {
+  return DATA_SOURCE_LABELS[source] ?? source;
 }
