@@ -5,9 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card } from '../components/Card';
 import { FormField } from '../components/FormField';
-import { SourceSelector } from '../components/SourceSelector';
 import { Alert, ErrorState, LoadingState } from '../components/States';
-import { PLACEHOLDER_SOURCE, SOURCE_PARAMETER, useGovernmentEntitySource } from '../hooks/useGovernmentEntitySource';
 import { useToast } from '../hooks/useToast';
 import { ROUTES } from '../layout/routes';
 import { GOVERNMENT_ENTITY_SCHEMA } from '../schemas/governmentEntitySchemas';
@@ -20,10 +18,8 @@ import {
 } from '../schemas/validationLimits';
 import { governmentEntityService } from '../services/governmentEntityService';
 import { QUERY_KEYS } from '../services/queryKeys';
-import type { GovernmentEntityDataSource } from '../types/api';
 import { errorMessage } from '../utils/errorMessages';
 import { applyServerFieldErrors } from '../utils/formErrors';
-import { dataSourceLabel } from '../utils/labels';
 
 const FORM_FIELDS = ['name', 'category', 'stateBranch', 'sector'] as const;
 const EMPTY_ENTITY: GovernmentEntityFormValues = { name: '', category: '', stateBranch: '', sector: '' };
@@ -40,23 +36,17 @@ export function GovernmentEntityFormPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
-  const sourceSelection = useGovernmentEntitySource();
-  const writableSources = sourceSelection.sources.filter((source) => !source.isReadOnly);
-  const selected =
-    sourceSelection.selected && !sourceSelection.selected.isReadOnly ? sourceSelection.selected : writableSources[0];
-  const source = selected?.source;
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const existing = useQuery({
-    queryKey: QUERY_KEYS.governmentEntityDetail(entityId ?? 0, source ?? PLACEHOLDER_SOURCE),
-    queryFn: () => governmentEntityService.detail(entityId as number, source as GovernmentEntityDataSource),
-    enabled: isEditing && source !== undefined,
+    queryKey: QUERY_KEYS.governmentEntityDetail(entityId ?? 0),
+    queryFn: () => governmentEntityService.detail(entityId as number),
+    enabled: isEditing,
   });
 
   const suggestions = useQuery({
-    queryKey: QUERY_KEYS.governmentEntityFilterValues(source ?? PLACEHOLDER_SOURCE),
-    queryFn: () => governmentEntityService.filterValues(source as GovernmentEntityDataSource),
-    enabled: source !== undefined,
+    queryKey: QUERY_KEYS.governmentEntityFilterValues,
+    queryFn: governmentEntityService.filterValues,
   });
 
   const {
@@ -77,20 +67,16 @@ export function GovernmentEntityFormPage() {
     }
   }, [existing.data, reset]);
 
-  const backToList = () =>
-    navigate(source ? `${ROUTES.governmentEntities}?${SOURCE_PARAMETER}=${source}` : ROUTES.governmentEntities);
+  const backToList = () => navigate(ROUTES.governmentEntities);
 
   const submit = async (values: GovernmentEntityFormValues) => {
-    if (!source) {
-      return;
-    }
     setSubmitError(null);
     try {
       if (isEditing) {
-        await governmentEntityService.update(entityId, source, values);
+        await governmentEntityService.update(entityId, values);
         showToast('Entidad actualizada correctamente.');
       } else {
-        await governmentEntityService.create(source, values);
+        await governmentEntityService.create(values);
         showToast('Entidad creada correctamente.');
       }
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.governmentEntities });
@@ -101,42 +87,24 @@ export function GovernmentEntityFormPage() {
     }
   };
 
-  if (sourceSelection.isPending || (isEditing && existing.isPending && source)) {
+  if (isEditing && existing.isPending) {
     return (
       <Card>
         <LoadingState />
       </Card>
     );
   }
-  if (sourceSelection.error || existing.isError) {
+  if (existing.isError) {
     return (
       <Card>
-        <ErrorState error={sourceSelection.error ?? existing.error} onRetry={backToList} />
-      </Card>
-    );
-  }
-  if (!source) {
-    return (
-      <Card>
-        <Alert tone="warning">No hay fuentes de datos editables disponibles.</Alert>
+        <ErrorState error={existing.error} onRetry={backToList} />
       </Card>
     );
   }
 
   return (
-    <Card
-      title={isEditing ? 'Editar entidad gubernamental' : 'Crear entidad gubernamental'}
-      subtitle={`Los cambios se guardarán en la fuente ${dataSourceLabel(source)}.`}
-    >
+    <Card title={isEditing ? 'Editar entidad gubernamental' : 'Crear entidad gubernamental'}>
       <div className="stack">
-        {!isEditing && (
-          <SourceSelector
-            sources={sourceSelection.sources}
-            selected={source}
-            onSelect={sourceSelection.selectSource}
-            writableOnly
-          />
-        )}
         <form onSubmit={handleSubmit(submit)} noValidate className="stack">
           {submitError && <Alert tone="error">{submitError}</Alert>}
           <div className="form-grid form-grid--two">

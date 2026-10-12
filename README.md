@@ -122,9 +122,9 @@ entorno (`Seccion__Clave`):
   `src/backend/src/SB.Solicitudes.Servicios/Data/entidades-gubernamentales.txt`. Si no existe o está vacío, en el
   primer arranque se crea con las 181 entidades del Excel oficial (`ListaEntidadesGubernamentales.xlsx`), que queda
   como fuente original de solo lectura.
-- Patrón **Strategy + Factory**: el selector de fuente permite consultar el archivo de texto (por defecto), una base
-  **SQLite** gestionada con EF Core o el **Excel original** (solo lectura). La importación copia el Excel a la fuente
-  elegida.
+- Patrón **Strategy + Factory** en la API: el parámetro `source` permite usar el archivo de texto (por defecto), una
+  base **SQLite** gestionada con EF Core o el **Excel original** (solo lectura), y `POST .../importaciones` copia una
+  fuente a otra. La interfaz se limita al CRUD sobre la fuente por defecto; las demás se prueban desde Swagger.
 
 **Administración**: usuarios (alta, rol, activación) y catálogos de áreas y tipos de solicitud.
 

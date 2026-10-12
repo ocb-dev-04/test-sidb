@@ -1033,40 +1033,6 @@ textarea {
   color: var(--color-danger);
 }
 
-.source-switch {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  padding: var(--space-1);
-  border-radius: var(--radius-medium);
-  background: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
-}
-
-.source-switch__option {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  border: none;
-  border-radius: var(--radius-small);
-  background: transparent;
-  font-size: var(--font-size-small);
-  font-weight: 600;
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-
-.source-switch__option[aria-pressed='true'] {
-  background: var(--color-surface);
-  color: var(--color-brand-base);
-  box-shadow: var(--shadow-card);
-}
-
-.tooltip-wrapper {
-  display: inline-flex;
-}
-
 .toast-region {
   position: fixed;
   right: var(--space-5);

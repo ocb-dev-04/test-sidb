@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SERVICE_REQUEST_PRIORITIES, SERVICE_REQUEST_STATUSES } from '../types/api';
-import { dataSourceLabel, priorityLabel, roleLabel, statusLabel, visibilityLabel } from './labels';
+import { priorityLabel, roleLabel, statusLabel, visibilityLabel } from './labels';
 
 describe('etiquetas en español', () => {
   it.each([
@@ -28,13 +28,11 @@ describe('etiquetas en español', () => {
     SERVICE_REQUEST_PRIORITIES.forEach((priority) => expect(priorityLabel(priority)).not.toBe(priority));
   });
 
-  it('traduce roles, visibilidad de comentarios y fuentes de datos', () => {
+  it('traduce roles y visibilidad de comentarios', () => {
     expect(roleLabel('Administrator')).toBe('Administrador');
     expect(roleLabel('Analyst')).toBe('Analista');
     expect(roleLabel('Requester')).toBe('Solicitante');
     expect(visibilityLabel('Internal')).toBe('Interno');
     expect(visibilityLabel('Public')).toBe('Público');
-    expect(dataSourceLabel('TextFile')).toBe('Archivo de texto');
-    expect(dataSourceLabel('Excel')).toBe('Excel (solo lectura)');
   });
 });

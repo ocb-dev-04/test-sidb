@@ -23,9 +23,6 @@ export type ServiceRequestSortField = (typeof SERVICE_REQUEST_SORT_FIELDS)[numbe
 export const SORT_DIRECTIONS = ['Ascending', 'Descending'] as const;
 export type SortDirection = (typeof SORT_DIRECTIONS)[number];
 
-export const GOVERNMENT_ENTITY_DATA_SOURCES = ['TextFile', 'Sqlite', 'Excel'] as const;
-export type GovernmentEntityDataSource = (typeof GOVERNMENT_ENTITY_DATA_SOURCES)[number];
-
 export type NotificationType =
   | 'ServiceRequestCreated'
   | 'ServiceRequestAssigned'
@@ -234,26 +231,13 @@ export interface GovernmentEntityRequest {
   sector: string;
 }
 
-export interface GovernmentEntityDataSourceResponse {
-  source: GovernmentEntityDataSource;
-  isReadOnly: boolean;
-  isDefault: boolean;
-}
-
 export interface GovernmentEntityFilterValuesResponse {
   categories: string[];
   stateBranches: string[];
   sectors: string[];
 }
 
-export interface GovernmentEntityImportResponse {
-  source: GovernmentEntityDataSource;
-  destination: GovernmentEntityDataSource;
-  importedCount: number;
-}
-
 export interface GovernmentEntityQuery {
-  source: GovernmentEntityDataSource;
   search?: string;
   category?: string;
   stateBranch?: string;

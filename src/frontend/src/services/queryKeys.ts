@@ -1,4 +1,4 @@
-import type { GovernmentEntityDataSource, GovernmentEntityQuery, ServiceRequestQuery, UserQuery } from '../types/api';
+import type { GovernmentEntityQuery, ServiceRequestQuery, UserQuery } from '../types/api';
 
 export const QUERY_KEYS = {
   dashboard: ['dashboard'] as const,
@@ -14,11 +14,8 @@ export const QUERY_KEYS = {
   notifications: ['notifications'] as const,
   unreadNotifications: ['notifications', 'unread-count'] as const,
   notificationList: (page: number) => ['notifications', 'list', page] as const,
-  governmentEntitySources: ['government-entities', 'sources'] as const,
   governmentEntities: ['government-entities'] as const,
-  governmentEntityFilterValues: (source: GovernmentEntityDataSource) =>
-    ['government-entities', 'filter-values', source] as const,
+  governmentEntityFilterValues: ['government-entities', 'filter-values'] as const,
   governmentEntityList: (query: GovernmentEntityQuery) => ['government-entities', 'list', query] as const,
-  governmentEntityDetail: (id: number, source: GovernmentEntityDataSource) =>
-    ['government-entities', 'detail', source, id] as const,
+  governmentEntityDetail: (id: number) => ['government-entities', 'detail', id] as const,
 };
