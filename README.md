@@ -221,10 +221,10 @@ El trabajo se integra en `develop` y llega a `main` por pull request. `.github/w
 |---|---|
 | Backend (.NET 8) | Build en Release, pruebas unitarias y de arquitectura, integración contra SQL Server en Testcontainers; publica los `.trx` |
 | Frontend (React + TypeScript) | Lint, typecheck, Vitest (reporte JUnit publicado) y build de producción |
-| Docker (stack completo) | `docker compose up --build`, salud de la API, login con usuario demo, datos semilla, frontend disponible y ningún contenedor como root |
+| Docker (stack completo) | `docker compose up --build`, salud de las APIs de producción y desarrollo, login con usuario demo, datos semilla, frontend disponible, Scalar solo en desarrollo y ningún contenedor como root |
 
-Dependabot (`.github/dependabot.yml`) propone actualizaciones semanales de NuGet y npm y mensuales de Actions e
-imágenes Docker, sin saltos de versión mayor en .NET ni en MediatR (la 13 es comercial).
+Dependabot (`.github/dependabot.yml`) propone cada mes un PR agrupado por ecosistema (NuGet, npm, Actions y
+Docker) solo con parches y versiones menores; las mayores se evalúan a mano (MediatR 13 es comercial).
 
 ## Evidencias
 
