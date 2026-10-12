@@ -75,6 +75,15 @@ export function ServiceRequestListPage() {
   const query = useMemo(() => readQuery(searchParameters), [searchParameters]);
   const [searchText, setSearchText] = useState(query.search ?? '');
   const debouncedSearch = useDebouncedValue(searchText.trim());
+  const urlSearch = query.search ?? '';
+  const [previousUrlSearch, setPreviousUrlSearch] = useState(urlSearch);
+  // Si la URL cambia desde fuera (menú, atrás) el campo la sigue; los cambios propios ya coinciden con el debounce.
+  if (urlSearch !== previousUrlSearch) {
+    setPreviousUrlSearch(urlSearch);
+    if (urlSearch !== debouncedSearch) {
+      setSearchText(urlSearch);
+    }
+  }
   const areas = useAreas();
   const requestTypes = useRequestTypes();
 
