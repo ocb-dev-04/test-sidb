@@ -1,5 +1,5 @@
 # Etapa 1: compilación de la SPA con Vite
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
