@@ -140,21 +140,6 @@ autorización por acción (defensa en profundidad: los handlers también la vali
 `INotificationDeliveryChannel` y un valor en `NotificationChannel`; los casos de uso no cambian. Con varias
 instancias de la API habría que tomar el lote con `UPDLOCK, READPAST` (documentado como mejora).
 
-## ADR-012 · Datos de ejemplo cargados al arrancar, solo si faltan
-
-**Contexto.** La revisión necesita usuarios y solicitudes de ejemplo sin pasos manuales, pero una semilla en la
-migración (`HasData`) se aplica siempre, fija fechas que envejecen y no se puede volver a ejecutar sin riesgo.
-
-**Decisión.** `DatabaseSeeder` corre al iniciar la API después de las migraciones y revisa tabla por tabla
-(áreas, tipos, usuarios, solicitudes): solo inserta donde no hay datos. Las solicitudes se construyen con los
-métodos del dominio (crear, asignar, cambiar estado, comentar), así respetan las mismas reglas que el uso real,
-con fechas relativas al día de arranque para que haya abiertas, cerradas y vencidas. Se limpian sus eventos de
-dominio para no generar notificaciones de ejemplo. Lo mismo aplica a las entidades gubernamentales: el archivo de
-texto y SQLite se crean desde el Excel solo si están vacíos.
-
-**Consecuencias.** Arrancar dos veces no duplica datos (cubierto por una prueba de integración). El archivo de
-texto es un dato de ejecución y no se versiona; el Excel sí, como fuente original.
-
 ## ADR-006 · Código legible `SOL-AAAA-NNNN`
 
 **Decisión.** Tabla `ContadoresSolicitud (Anio, UltimoNumero)` y un `MERGE ... WITH (HOLDLOCK) ... OUTPUT` atómico
@@ -220,6 +205,21 @@ Las reglas de nombres (PascalCase, camelCase, constantes en MAYÚSCULA, prefijo 
 vía `.editorconfig` (`EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`) y además las comprueba
 `NamingConventionTests`. Los números mágicos se reemplazaron por constantes con nombre. Se desactivaron CA1707 y
 CA1716 porque contradicen la propia especificación (guiones bajos en constantes, palabra `Error`).
+
+## ADR-012 · Datos de ejemplo cargados al arrancar, solo si faltan
+
+**Contexto.** La revisión necesita usuarios y solicitudes de ejemplo sin pasos manuales, pero una semilla en la
+migración (`HasData`) se aplica siempre, fija fechas que envejecen y no se puede volver a ejecutar sin riesgo.
+
+**Decisión.** `DatabaseSeeder` corre al iniciar la API después de las migraciones y revisa tabla por tabla
+(áreas, tipos, usuarios, solicitudes): solo inserta donde no hay datos. Las solicitudes se construyen con los
+métodos del dominio (crear, asignar, cambiar estado, comentar), así respetan las mismas reglas que el uso real,
+con fechas relativas al día de arranque para que haya abiertas, cerradas y vencidas. Se limpian sus eventos de
+dominio para no generar notificaciones de ejemplo. Lo mismo aplica a las entidades gubernamentales: el archivo de
+texto y SQLite se crean desde el Excel solo si están vacíos.
+
+**Consecuencias.** Arrancar dos veces no duplica datos (cubierto por una prueba de integración). El archivo de
+texto es un dato de ejecución y no se versiona; el Excel sí, como fuente original.
 
 ## Mejoras futuras identificadas
 

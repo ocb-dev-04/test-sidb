@@ -26,15 +26,31 @@ docker compose up --build
 | Servicio | URL |
 |---|---|
 | Aplicación web | http://localhost:8080 |
-| API (Production, la usa el frontend) | http://localhost:5080 |
-| API de desarrollo + Scalar | http://localhost:5081/scalar (Swagger UI en http://localhost:5081/swagger) |
+| API de producción (la usa el frontend) | http://localhost:5080 |
+| API de desarrollo con Scalar | http://localhost:5081/scalar (Swagger UI en http://localhost:5081/swagger) |
 | Salud de la API | http://localhost:5080/health |
 | SQL Server | `localhost,1433` (usuario `sa`, clave en `.env.example`) |
 
-Ambos contenedores de la API salen de la misma imagen y solo cambian por `ASPNETCORE_ENVIRONMENT`: la documentación
-interactiva se publica únicamente en `Development`. Cada uno usa su propia base de datos (`SBSolicitudes` y
-`SBSolicitudesDev`). La API aplica las migraciones y los datos de ejemplo al arrancar. Los valores de `.env.example` son de
+La API aplica las migraciones y los datos de ejemplo al arrancar. Los valores de `.env.example` son de
 demostración; para cambiarlos copie el archivo a `.env`.
+
+### Entornos de la API: producción y desarrollo
+
+El stack levanta **dos contenedores de la misma imagen** (`sb-solicitudes/api`). Deben tratarse como dos entornos
+distintos, igual que lo serían en un despliegue real:
+
+| Contenedor | `ASPNETCORE_ENVIRONMENT` | Puerto | Base de datos | Para qué |
+|---|---|---|---|---|
+| `api` | `Production` | 5080 | `SBSolicitudes` | La API que consume el frontend. No publica documentación interactiva (`/scalar` y `/swagger` no están disponibles). |
+| `api-dev` | `Development` | 5081 | `SBSolicitudesDev` | Entorno de desarrollo para explorar y probar la API con **Scalar** (o Swagger UI). |
+
+- La imagen es una sola a propósito: lo que se prueba en desarrollo es exactamente lo que corre en producción. Solo
+  cambia la variable `ASPNETCORE_ENVIRONMENT`, y con ella la documentación (`app.Environment.IsDevelopment()` en
+  `PresentationServiceCollectionExtensions.UsePresentation`) y el nivel de log (`appsettings.Development.json`).
+- Cada entorno tiene su base de datos y su volumen, con los mismos usuarios de prueba y datos de ejemplo. Lo que se
+  crea desde Scalar en `api-dev` **no aparece** en la aplicación web, y viceversa.
+- Para probar en Scalar: `POST /api/auth/login` con un usuario de prueba, copiar el `accessToken` y usarlo como
+  Bearer (el esquema ya viene preseleccionado).
 
 ## Usuarios de prueba
 
@@ -71,7 +87,7 @@ npm run dev                                                                  # h
 - **Migraciones EF Core** (recomendado): `dotnet tool restore` y luego
   `dotnet ef database update --context ApplicationDbContext --project src/SB.Solicitudes.Infraestructura --startup-project src/SB.Solicitudes.Infraestructura`
   (usa la variable `SB_SOLICITUDES_CONNECTION_STRING` o, si no existe, el SQL Server local del paso 1), o
-  simplemente arrancar la API con `Database:ApplyMigrationsOnStartup=true` (activo en Development y Docker).
+  simplemente arrancar la API con `Database:ApplyMigrationsOnStartup=true` (activo en Development y en los dos contenedores de Docker).
 - **Script SQL**: `database/schema.sql` (tablas, índices y restricciones), idempotente y generado desde las
   migraciones, por lo que siempre coincide con el modelo.
 - **Datos de ejemplo al primer arranque**: la API revisa cada tabla y solo la llena si está vacía (6 áreas, 5 tipos
@@ -96,6 +112,7 @@ entorno (`Seccion__Clave`):
 | `Notifications:Channels` | Canales activos: `InApp`, `Email` |
 | `Notifications:Dispatch:EmailPickupDirectory` | Carpeta donde el correo simulado deja archivos `.eml` |
 | `Database:ApplyMigrationsOnStartup` | Aplica migraciones al iniciar |
+| `ASPNETCORE_ENVIRONMENT` | `Development` publica Scalar y Swagger UI; `Production` no |
 | `RateLimiting:LoginPermitsPerWindow` | Intentos de login por minuto e IP (5 por defecto) |
 
 ---
@@ -214,8 +231,9 @@ npm test
 
 ## Integración continua y flujo de ramas
 
-El trabajo se integra en `develop` y llega a `main` por pull request. `.github/workflows/ci.yml` corre en cada push a
-`develop` o `main`, en cada PR hacia `main` y a demanda (`workflow_dispatch`):
+`main` está protegida: los cambios entran por pull request y solo se integran con los tres jobs en verde (sin force
+push ni borrado). `.github/workflows/ci.yml` corre en cada push a `main` o `develop`, en cada PR hacia `main` y a
+demanda (`workflow_dispatch`):
 
 | Job | Qué valida |
 |---|---|
