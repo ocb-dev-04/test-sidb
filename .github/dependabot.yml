@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /src/backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      microsoft:
+        patterns: ["Microsoft.*", "System.*"]
+      testing:
+        patterns: ["xunit*", "NSubstitute", "Shouldly", "coverlet*", "Testcontainers*", "NetArchTest*"]
+    ignore:
+      # 12.5.0 es la última versión Apache-2.0 de MediatR; desde la 13 requiere licencia comercial.
+      - dependency-name: MediatR
+        update-types: ["version-update:semver-major"]
+      # El proyecto está fijado a .NET 8.
+      - dependency-name: "Microsoft.*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: npm
+    directory: /src/frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      development:
+        dependency-type: development
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: docker
+    directory: /src/backend
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: "mcr.microsoft.com/dotnet/*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker
+    directory: /src/frontend
+    schedule:
+      interval: monthly

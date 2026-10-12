@@ -207,7 +207,21 @@ npm test
 | `Servicios.IntegrationTests` | 17 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
 | Frontend (Vitest) | 39 | Etiquetas, traducción de errores, esquemas zod, permisos por rol en la interfaz, cliente HTTP, login, navegación |
 
-`scripts/validate.ps1` (o `validate.sh`) ejecuta lo mismo que el pipeline de CI (`.github/workflows/ci.yml`).
+`scripts/validate.ps1` (o `validate.sh`) ejecuta lo mismo que los jobs de backend y frontend del CI.
+
+## Integración continua y flujo de ramas
+
+El trabajo se integra en `develop` y llega a `main` por pull request. `.github/workflows/ci.yml` corre en cada push a
+`develop` o `main`, en cada PR hacia `main` y a demanda (`workflow_dispatch`):
+
+| Job | Qué valida |
+|---|---|
+| Backend (.NET 8) | Build en Release, pruebas unitarias y de arquitectura, integración contra SQL Server en Testcontainers; publica los `.trx` |
+| Frontend (React + TypeScript) | Lint, typecheck, Vitest (reporte JUnit publicado) y build de producción |
+| Docker (stack completo) | `docker compose up --build`, salud de la API, login con usuario demo, datos semilla, frontend disponible y ningún contenedor como root |
+
+Dependabot (`.github/dependabot.yml`) propone actualizaciones semanales de NuGet y npm y mensuales de Actions e
+imágenes Docker, sin saltos de versión mayor en .NET ni en MediatR (la 13 es comercial).
 
 ## Evidencias
 
