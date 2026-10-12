@@ -7,6 +7,7 @@ import { Pagination } from '../components/Pagination';
 import { ServiceRequestTable } from '../components/ServiceRequestTable';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { useAuth } from '../hooks/useAuth';
+import { useClampedPage } from '../hooks/useClampedPage';
 import { useAreas, useRequestTypes } from '../hooks/useCatalogs';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { ROUTES } from '../layout/routes';
@@ -120,6 +121,7 @@ export function ServiceRequestListPage() {
     queryFn: () => serviceRequestService.list(query),
     placeholderData: keepPreviousData,
   });
+  useClampedPage(serviceRequests.data, (page) => updateParameters({ pagina: String(page) }, false));
 
   const activeFilterCount = [...searchParameters.keys()].filter((key) => !NON_FILTER_PARAMETERS.includes(key)).length;
   const hasFilters = activeFilterCount > 0;

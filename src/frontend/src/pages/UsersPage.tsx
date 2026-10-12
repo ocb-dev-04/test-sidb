@@ -8,6 +8,7 @@ import { Pagination } from '../components/Pagination';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { CreateUserForm, UpdateUserForm } from '../components/UserForms';
 import { useAuth } from '../hooks/useAuth';
+import { useClampedPage } from '../hooks/useClampedPage';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useToast } from '../hooks/useToast';
 import type { CreateUserFormValues, UpdateUserFormValues } from '../schemas/userSchemas';
@@ -47,6 +48,7 @@ export function UsersPage() {
     queryFn: () => userService.list(query),
     placeholderData: keepPreviousData,
   });
+  useClampedPage(users.data, setPage);
 
   const refreshUsers = () =>
     Promise.all([

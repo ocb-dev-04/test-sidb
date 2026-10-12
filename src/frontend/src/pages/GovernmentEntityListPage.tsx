@@ -10,6 +10,7 @@ import { Pagination } from '../components/Pagination';
 import { SourceSelector } from '../components/SourceSelector';
 import { Alert, EmptyState, ErrorState, LoadingState } from '../components/States';
 import { useAuth } from '../hooks/useAuth';
+import { useClampedPage } from '../hooks/useClampedPage';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { PLACEHOLDER_SOURCE, SOURCE_PARAMETER, useGovernmentEntitySource } from '../hooks/useGovernmentEntitySource';
 import { useToast } from '../hooks/useToast';
@@ -81,6 +82,7 @@ export function GovernmentEntityListPage() {
     enabled: source !== undefined,
     placeholderData: keepPreviousData,
   });
+  useClampedPage(entities.data, setPage);
 
   const invalidateEntities = () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.governmentEntities });
 
