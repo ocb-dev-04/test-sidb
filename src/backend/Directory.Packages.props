@@ -20,7 +20,7 @@
 
   <ItemGroup Label="Infrastructure">
     <PackageVersion Include="CsvHelper" Version="33.1.0" />
-    <PackageVersion Include="ExcelDataReader" Version="3.8.0" />
+    <PackageVersion Include="ExcelDataReader" Version="3.9.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.31" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.31" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.31" />
