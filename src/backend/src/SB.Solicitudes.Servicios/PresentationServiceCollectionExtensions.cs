@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using SB.Solicitudes.Aplicacion;
 using SB.Solicitudes.Aplicacion.Abstractions.Authentication;
 using SB.Solicitudes.Dominio.Users;
@@ -24,6 +25,7 @@ internal static class PresentationServiceCollectionExtensions
     private const string API_TITLE = "SB.Solicitudes API";
     private const string API_VERSION = "v1";
     private const string BEARER_SCHEME = "Bearer";
+    private const string OPEN_API_ROUTE_PATTERN = "/swagger/{documentName}/swagger.json";
     private const int CLOCK_SKEW_SECONDS = 30;
     private const string HEALTH_ROUTE = "/health";
 
@@ -93,6 +95,14 @@ internal static class PresentationServiceCollectionExtensions
 
         app.MapControllers();
         app.MapHealthChecks(HEALTH_ROUTE).AllowAnonymous();
+
+        if (!app.Environment.IsProduction())
+            app.MapScalarApiReference(options => options
+                    .WithTitle(API_TITLE)
+                    .WithOpenApiRoutePattern(OPEN_API_ROUTE_PATTERN)
+                    .AddPreferredSecuritySchemes([BEARER_SCHEME]))
+                .AllowAnonymous();
+
         return app;
     }
 

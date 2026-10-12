@@ -7,7 +7,7 @@ gubernamentales** con base de datos en archivo de texto plano.
 
 | | |
 |---|---|
-| Backend | .NET 8, ASP.NET Core Web API, EF Core 8, SQL Server 2022, SQLite, Serilog, Swagger, JWT |
+| Backend | .NET 8, ASP.NET Core Web API, EF Core 8, SQL Server 2022, SQLite, Serilog, OpenAPI (Swagger + Scalar), JWT |
 | Frontend | React 18, TypeScript (strict), Vite, React Router, TanStack Query, react-hook-form + zod |
 | Arquitectura | Onion: `SB.Solicitudes.Dominio` · `.Aplicacion` · `.Infraestructura` · `.Servicios` |
 | Pruebas | 118 en backend (unitarias, arquitectura, integración con SQL Server real) y 39 en frontend |
@@ -26,7 +26,7 @@ docker compose up --build
 | Servicio | URL |
 |---|---|
 | Aplicación web | http://localhost:8080 |
-| API + Swagger | http://localhost:5080/swagger |
+| API + Scalar | http://localhost:5080/scalar (Swagger UI en http://localhost:5080/swagger) |
 | Salud de la API | http://localhost:5080/health |
 | SQL Server | `localhost,1433` (usuario `sa`, clave en `.env.example`) |
 
@@ -55,7 +55,7 @@ docker run -d --name sb-sql -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=SbSolicitudes
 
 # 2. API — en Development aplica migraciones y carga datos de ejemplo si la base está vacía
 cd src/backend
-dotnet run --project src/SB.Solicitudes.Servicios --launch-profile http     # http://localhost:5080/swagger
+dotnet run --project src/SB.Solicitudes.Servicios --launch-profile http     # http://localhost:5080/scalar
 
 # 3. Frontend
 cd src/frontend
@@ -146,8 +146,8 @@ entorno (`Seccion__Clave`):
 | POST | `/api/entidades-gubernamentales/importaciones` | Importar una fuente a otra |
 | GET | `/api/usuarios`, `/api/notificaciones` | Usuarios y bandeja de notificaciones |
 
-El contrato completo está en Swagger y exportado en [`docs/api/openapi.json`](docs/api/openapi.json). Los errores
-siguen RFC 7807 (ProblemDetails) con un `code` estable y el `traceId`.
+El contrato completo se explora en Scalar (`/scalar`) o Swagger UI (`/swagger`) y está exportado en
+[`docs/api/openapi.json`](docs/api/openapi.json). Los errores siguen RFC 7807 (ProblemDetails) con un `code` estable y el `traceId`.
 
 ---
 
@@ -159,7 +159,7 @@ src/backend
 │   ├── SB.Solicitudes.Dominio          Entidades, máquina de estados, eventos de dominio, Result
 │   ├── SB.Solicitudes.Aplicacion       Casos de uso, validaciones, MediatR, puertos, visibilidad por rol
 │   ├── SB.Solicitudes.Infraestructura  EF Core, SQL Server, SQLite, Excel, JWT, hasher de Identity, notificaciones
-│   └── SB.Solicitudes.Servicios        API REST (host), seguridad, Swagger, Serilog, Data/ (texto plano)
+│   └── SB.Solicitudes.Servicios        API REST (host), seguridad, OpenAPI/Scalar, Serilog, Data/ (texto plano)
 └── tests
     ├── SB.Solicitudes.Dominio.Tests
     ├── SB.Solicitudes.Aplicacion.Tests

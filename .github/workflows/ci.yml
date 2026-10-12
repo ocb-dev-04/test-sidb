@@ -108,7 +108,8 @@ jobs:
             -H "Authorization: Bearer $token" | jq '.totalCount')
           [ "$entities" -gt 0 ] || { echo "Sin entidades gubernamentales"; exit 1; }
           curl -fsS "$WEB_URL/" > /dev/null
-          echo "Login correcto, $entities entidades y frontend disponible"
+          curl -fsSL "$API_URL/scalar" > /dev/null
+          echo "Login correcto, $entities entidades, Scalar y frontend disponibles"
       - name: Verifica que ningún contenedor corra como root
         run: |
           for service in sqlserver api frontend; do

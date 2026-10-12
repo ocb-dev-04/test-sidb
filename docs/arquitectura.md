@@ -12,7 +12,7 @@ flowchart LR
         FE[React + TypeScript<br/>src/frontend]
     end
     subgraph "SB.Solicitudes (Onion)"
-        S[Servicios<br/>API REST, JWT, Swagger, Serilog]
+        S[Servicios<br/>API REST, JWT, OpenAPI/Scalar, Serilog]
         I[Infraestructura<br/>EF Core, SQL Server, SQLite, Excel,<br/>JWT, hasher de Identity, worker de notificaciones]
         A[Aplicacion<br/>casos de uso, validaciones,<br/>MediatR, puertos]
         D[Dominio<br/>entidades, máquina de estados,<br/>eventos, Result]
@@ -38,7 +38,7 @@ flowchart LR
 | `SB.Solicitudes.Dominio` | Entidades con invariantes (`ServiceRequest`, `StatusHistory`, `Comment`, `User`, `Area`, `RequestType`, `Notification`, `GovernmentEntity`), tabla de transiciones, eventos de dominio, `Result`/`Error`. | Nada |
 | `SB.Solicitudes.Aplicacion` | Casos de uso (comandos y consultas), validaciones FluentValidation, MediatR con *pipeline*, especificación de visibilidad por rol, puertos (repositorios, generador de código, JWT, hasher, almacenes de entidades). | Dominio |
 | `SB.Solicitudes.Infraestructura` | Implementaciones de los puertos: EF Core + SQL Server, migraciones, carga inicial de datos, generador `SOL-AAAA-NNNN`, JWT, `PasswordHasher` de Identity, canales y *worker* de notificaciones, almacenes de texto plano / SQLite / Excel. | Aplicacion |
-| `SB.Solicitudes.Servicios` | Host de la API (los "servicios" REST): controllers, autenticación y *policies*, ProblemDetails, Serilog, Swagger, CORS, *rate limiting*. Es la raíz de composición. | Aplicacion, Infraestructura |
+| `SB.Solicitudes.Servicios` | Host de la API (los "servicios" REST): controllers, autenticación y *policies*, ProblemDetails, Serilog, OpenAPI (Swagger + Scalar), CORS, *rate limiting*. Es la raíz de composición. | Aplicacion, Infraestructura |
 
 Las dependencias apuntan hacia el centro. `tests/SB.Solicitudes.ArchitectureTests` lo verifica en cada build:
 Dominio y Aplicación no pueden referenciar EF Core, ASP.NET Core ni capas externas.
