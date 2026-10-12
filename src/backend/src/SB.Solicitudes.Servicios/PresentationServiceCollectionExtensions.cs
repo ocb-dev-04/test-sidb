@@ -81,7 +81,9 @@ internal static class PresentationServiceCollectionExtensions
         app.UseExceptionHandler();
         app.UseStatusCodePages();
 
-        if (!app.Environment.IsProduction())
+        // La documentación interactiva solo se expone en Development; el contenedor de producción no la publica.
+        bool exposeApiDocumentation = app.Environment.IsDevelopment();
+        if (exposeApiDocumentation)
         {
             app.UseSwagger();
             app.UseSwaggerUI(options => options.DocumentTitle = API_TITLE);
@@ -96,7 +98,7 @@ internal static class PresentationServiceCollectionExtensions
         app.MapControllers();
         app.MapHealthChecks(HEALTH_ROUTE).AllowAnonymous();
 
-        if (!app.Environment.IsProduction())
+        if (exposeApiDocumentation)
             app.MapScalarApiReference(options => options
                     .WithTitle(API_TITLE)
                     .WithOpenApiRoutePattern(OPEN_API_ROUTE_PATTERN)

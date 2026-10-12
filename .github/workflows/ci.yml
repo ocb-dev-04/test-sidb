@@ -84,6 +84,7 @@ jobs:
     needs: [backend, frontend]
     env:
       API_URL: http://localhost:5080
+      DEVELOPMENT_API_URL: http://localhost:5081
       WEB_URL: http://localhost:8080
       DEMO_EMAIL: admin@solicitudes.local
       DEMO_PASSWORD: Demo2026*
@@ -95,7 +96,9 @@ jobs:
       - name: Espera a que la API esté sana
         run: |
           for attempt in $(seq 1 "$MAXIMUM_ATTEMPTS"); do
-            if curl -fsS "$API_URL/health" > /dev/null; then echo "API sana"; exit 0; fi
+            if curl -fsS "$API_URL/health" > /dev/null && curl -fsS "$DEVELOPMENT_API_URL/health" > /dev/null; then
+              echo "API de producción y de desarrollo sanas"; exit 0
+            fi
             sleep 5
           done
           echo "La API no respondió a tiempo"; exit 1
@@ -108,11 +111,13 @@ jobs:
             -H "Authorization: Bearer $token" | jq '.totalCount')
           [ "$entities" -gt 0 ] || { echo "Sin entidades gubernamentales"; exit 1; }
           curl -fsS "$WEB_URL/" > /dev/null
-          curl -fsSL "$API_URL/scalar" > /dev/null
-          echo "Login correcto, $entities entidades, Scalar y frontend disponibles"
+          curl -fsSL "$DEVELOPMENT_API_URL/scalar" > /dev/null
+          production_status=$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/scalar")
+          [ "$production_status" != "200" ] || { echo "Producción no debe exponer Scalar"; exit 1; }
+          echo "Login correcto, $entities entidades, frontend disponible, Scalar solo en desarrollo"
       - name: Verifica que ningún contenedor corra como root
         run: |
-          for service in sqlserver api frontend; do
+          for service in sqlserver api api-dev frontend; do
             user_id=$(docker compose exec -T "$service" id -u)
             echo "$service corre con uid $user_id"
             [ "$user_id" != "0" ] || { echo "$service corre como root"; exit 1; }

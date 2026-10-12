@@ -26,11 +26,14 @@ docker compose up --build
 | Servicio | URL |
 |---|---|
 | Aplicación web | http://localhost:8080 |
-| API + Scalar | http://localhost:5080/scalar (Swagger UI en http://localhost:5080/swagger) |
+| API (Production, la usa el frontend) | http://localhost:5080 |
+| API de desarrollo + Scalar | http://localhost:5081/scalar (Swagger UI en http://localhost:5081/swagger) |
 | Salud de la API | http://localhost:5080/health |
 | SQL Server | `localhost,1433` (usuario `sa`, clave en `.env.example`) |
 
-La API aplica las migraciones y los datos de ejemplo al arrancar. Los valores de `.env.example` son de
+Ambos contenedores de la API salen de la misma imagen y solo cambian por `ASPNETCORE_ENVIRONMENT`: la documentación
+interactiva se publica únicamente en `Development`. Cada uno usa su propia base de datos (`SBSolicitudes` y
+`SBSolicitudesDev`). La API aplica las migraciones y los datos de ejemplo al arrancar. Los valores de `.env.example` son de
 demostración; para cambiarlos copie el archivo a `.env`.
 
 ## Usuarios de prueba
@@ -146,7 +149,7 @@ entorno (`Seccion__Clave`):
 | POST | `/api/entidades-gubernamentales/importaciones` | Importar una fuente a otra |
 | GET | `/api/usuarios`, `/api/notificaciones` | Usuarios y bandeja de notificaciones |
 
-El contrato completo se explora en Scalar (`/scalar`) o Swagger UI (`/swagger`) y está exportado en
+El contrato se explora en Scalar o Swagger UI de la API de desarrollo y está exportado en
 [`docs/api/openapi.json`](docs/api/openapi.json). Los errores siguen RFC 7807 (ProblemDetails) con un `code` estable y el `traceId`.
 
 ---
