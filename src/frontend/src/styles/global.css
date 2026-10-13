@@ -862,7 +862,7 @@ textarea {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: var(--space-5);
 }
 
@@ -1228,11 +1228,16 @@ textarea {
     width: min(var(--sidebar-width), 85vw);
     background: var(--color-brand-base);
     transform: translateX(-100%);
-    transition: transform 200ms ease;
+    /* Oculta también para el teclado y los lectores de pantalla mientras está cerrada. */
+    visibility: hidden;
+    transition:
+      transform 200ms ease,
+      visibility 200ms;
   }
 
   .sidebar--open {
     transform: translateX(0);
+    visibility: visible;
   }
 
   .sidebar-backdrop--visible {
@@ -1303,5 +1308,49 @@ textarea {
     align-items: flex-start;
     padding: var(--space-5) var(--space-4);
     border-radius: var(--radius-large) var(--radius-large) 0 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .top-header__title {
+    font-size: 1.05rem;
+  }
+
+  .card__header > .inline {
+    width: 100%;
+  }
+
+  .card__header > .inline > .button,
+  .form-actions > .button {
+    flex: 1;
+  }
+
+  .pagination,
+  .pagination__controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .dialog {
+    padding: var(--space-4);
+  }
+
+  .popover {
+    position: fixed;
+    top: 72px;
+    right: var(--space-4);
+    left: var(--space-4);
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
