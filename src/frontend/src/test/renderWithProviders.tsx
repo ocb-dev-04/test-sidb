@@ -19,10 +19,12 @@ export function buildUser(role: UserRole, overrides: Partial<UserResponse> = {})
   };
 }
 
+type InitialEntry = NonNullable<NonNullable<Parameters<typeof createMemoryRouter>[1]>['initialEntries']>[number];
+
 interface RenderOptions {
   user?: UserResponse | null;
   login?: AuthContextValue['login'];
-  route?: string;
+  route?: InitialEntry;
   sessionExpired?: boolean;
 }
 
