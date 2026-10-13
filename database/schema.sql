@@ -353,3 +353,190 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DROP INDEX [IX_Usuarios_Rol_Activo] ON [Usuarios];
+    DECLARE @var0 sysname;
+    SELECT @var0 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Usuarios]') AND [c].[name] = N'Rol');
+    IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Usuarios] DROP CONSTRAINT [' + @var0 + '];');
+    ALTER TABLE [Usuarios] ALTER COLUMN [Rol] nvarchar(50) NOT NULL;
+    CREATE INDEX [IX_Usuarios_Rol_Activo] ON [Usuarios] ([Rol], [Activo]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DECLARE @var1 sysname;
+    SELECT @var1 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Solicitudes]') AND [c].[name] = N'VersionFila');
+    IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Solicitudes] DROP CONSTRAINT [' + @var1 + '];');
+    ALTER TABLE [Solicitudes] DROP COLUMN [VersionFila];
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    ALTER TABLE [Solicitudes] ADD [VersionFila] rowversion NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DROP INDEX [IX_Solicitudes_Estado_Prioridad] ON [Solicitudes];
+    DECLARE @var2 sysname;
+    SELECT @var2 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Solicitudes]') AND [c].[name] = N'Prioridad');
+    IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Solicitudes] DROP CONSTRAINT [' + @var2 + '];');
+    ALTER TABLE [Solicitudes] ALTER COLUMN [Prioridad] nvarchar(50) NOT NULL;
+    CREATE INDEX [IX_Solicitudes_Estado_Prioridad] ON [Solicitudes] ([Estado], [Prioridad]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DROP INDEX [IX_Solicitudes_Estado_Prioridad] ON [Solicitudes];
+    DROP INDEX [IX_Solicitudes_Responsable_Estado] ON [Solicitudes];
+    DECLARE @var3 sysname;
+    SELECT @var3 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Solicitudes]') AND [c].[name] = N'Estado');
+    IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Solicitudes] DROP CONSTRAINT [' + @var3 + '];');
+    ALTER TABLE [Solicitudes] ALTER COLUMN [Estado] nvarchar(50) NOT NULL;
+    CREATE INDEX [IX_Solicitudes_Estado_Prioridad] ON [Solicitudes] ([Estado], [Prioridad]);
+    CREATE INDEX [IX_Solicitudes_Responsable_Estado] ON [Solicitudes] ([ResponsableId], [Estado]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DECLARE @var4 sysname;
+    SELECT @var4 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Notificaciones]') AND [c].[name] = N'Tipo');
+    IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Notificaciones] DROP CONSTRAINT [' + @var4 + '];');
+    ALTER TABLE [Notificaciones] ALTER COLUMN [Tipo] nvarchar(50) NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DROP INDEX [IX_Notificaciones_Estado_Fecha] ON [Notificaciones];
+    DECLARE @var5 sysname;
+    SELECT @var5 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Notificaciones]') AND [c].[name] = N'Estado');
+    IF @var5 IS NOT NULL EXEC(N'ALTER TABLE [Notificaciones] DROP CONSTRAINT [' + @var5 + '];');
+    ALTER TABLE [Notificaciones] ALTER COLUMN [Estado] nvarchar(50) NOT NULL;
+    CREATE INDEX [IX_Notificaciones_Estado_Fecha] ON [Notificaciones] ([Estado], [FechaCreacion]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DROP INDEX [IX_Notificaciones_Destino_Canal_Lectura] ON [Notificaciones];
+    DECLARE @var6 sysname;
+    SELECT @var6 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Notificaciones]') AND [c].[name] = N'Canal');
+    IF @var6 IS NOT NULL EXEC(N'ALTER TABLE [Notificaciones] DROP CONSTRAINT [' + @var6 + '];');
+    ALTER TABLE [Notificaciones] ALTER COLUMN [Canal] nvarchar(50) NOT NULL;
+    CREATE INDEX [IX_Notificaciones_Destino_Canal_Lectura] ON [Notificaciones] ([UsuarioDestinoId], [Canal], [FechaLectura]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DECLARE @var7 sysname;
+    SELECT @var7 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistorialEstados]') AND [c].[name] = N'EstadoNuevo');
+    IF @var7 IS NOT NULL EXEC(N'ALTER TABLE [HistorialEstados] DROP CONSTRAINT [' + @var7 + '];');
+    ALTER TABLE [HistorialEstados] ALTER COLUMN [EstadoNuevo] nvarchar(50) NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DECLARE @var8 sysname;
+    SELECT @var8 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistorialEstados]') AND [c].[name] = N'EstadoAnterior');
+    IF @var8 IS NOT NULL EXEC(N'ALTER TABLE [HistorialEstados] DROP CONSTRAINT [' + @var8 + '];');
+    ALTER TABLE [HistorialEstados] ALTER COLUMN [EstadoAnterior] nvarchar(50) NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    DECLARE @var9 sysname;
+    SELECT @var9 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Comentarios]') AND [c].[name] = N'Visibilidad');
+    IF @var9 IS NOT NULL EXEC(N'ALTER TABLE [Comentarios] DROP CONSTRAINT [' + @var9 + '];');
+    ALTER TABLE [Comentarios] ALTER COLUMN [Visibilidad] nvarchar(50) NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261013011649_RequireRowVersionAndWidenEnumColumns'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261013011649_RequireRowVersionAndWidenEnumColumns', N'8.0.31');
+END;
+GO
+
+COMMIT;
+GO
+

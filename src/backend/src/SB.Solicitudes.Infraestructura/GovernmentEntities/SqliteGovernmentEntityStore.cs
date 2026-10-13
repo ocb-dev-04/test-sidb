@@ -23,9 +23,9 @@ internal sealed class GovernmentEntityConfiguration : IEntityTypeConfiguration<G
         builder.HasKey(entity => entity.Id);
         builder.Property(entity => entity.Id).HasColumnName("Id").ValueGeneratedOnAdd();
         builder.Property(entity => entity.Name).HasColumnName("Nombre").HasMaxLength(GovernmentEntity.NAME_MAXIMUM_LENGTH).IsRequired();
-        builder.Property(entity => entity.Category).HasColumnName("Categoria").HasMaxLength(GovernmentEntity.CATEGORY_MAXIMUM_LENGTH);
-        builder.Property(entity => entity.StateBranch).HasColumnName("PoderDelEstado").HasMaxLength(GovernmentEntity.STATE_BRANCH_MAXIMUM_LENGTH);
-        builder.Property(entity => entity.Sector).HasColumnName("Sector").HasMaxLength(GovernmentEntity.SECTOR_MAXIMUM_LENGTH);
+        builder.Property(entity => entity.Category).HasColumnName("Categoria").HasMaxLength(GovernmentEntity.CATEGORY_MAXIMUM_LENGTH).IsRequired();
+        builder.Property(entity => entity.StateBranch).HasColumnName("PoderDelEstado").HasMaxLength(GovernmentEntity.STATE_BRANCH_MAXIMUM_LENGTH).IsRequired();
+        builder.Property(entity => entity.Sector).HasColumnName("Sector").HasMaxLength(GovernmentEntity.SECTOR_MAXIMUM_LENGTH).IsRequired();
         builder.Ignore(nameof(IHasDomainEvents.DomainEvents));
         builder.HasIndex(entity => entity.Name).HasDatabaseName("IX_EntidadesGubernamentales_Nombre");
     }

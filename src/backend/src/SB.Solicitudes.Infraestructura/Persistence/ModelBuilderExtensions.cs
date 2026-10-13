@@ -6,7 +6,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence;
 
 internal static class ModelBuilderExtensions
 {
-    public const int ENUM_MAXIMUM_LENGTH = 30;
+    // Los enums se guardan por nombre: holgura para miembros nuevos (el más largo hoy tiene 27 caracteres).
+    public const int ENUM_MAXIMUM_LENGTH = 50;
 
     public static void IgnoreDomainEvents(this ModelBuilder modelBuilder)
     {

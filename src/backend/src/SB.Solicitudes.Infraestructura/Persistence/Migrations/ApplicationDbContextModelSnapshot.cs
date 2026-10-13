@@ -92,8 +92,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("Channel")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Canal");
 
                     b.Property<DateTime>("CreatedOnUtc")
@@ -133,8 +133,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Estado");
 
                     b.Property<string>("Subject")
@@ -145,8 +145,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Tipo");
 
                     b.HasKey("Id");
@@ -188,8 +188,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("Visibility")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Visibilidad");
 
                     b.HasKey("Id");
@@ -247,8 +247,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("Priority")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Prioridad");
 
                     b.Property<int>("RequestTypeId")
@@ -270,14 +270,15 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
+                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion")
                         .HasColumnName("VersionFila");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Estado");
 
                     b.Property<string>("Title")
@@ -339,13 +340,13 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("NewStatus")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("EstadoNuevo");
 
                     b.Property<string>("PreviousStatus")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("EstadoAnterior");
 
                     b.Property<Guid>("ServiceRequestId")
@@ -396,8 +397,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("Rol");
 
                     b.HasKey("Id");
