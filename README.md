@@ -224,11 +224,11 @@ npm test
 | Proyecto | Pruebas | Qué cubre |
 |---|---|---|
 | `Dominio.Tests` | 52 | Tabla de transiciones, comentario obligatorio, reapertura por rol, asignación, vencimiento, código, Result, reintentos de notificación |
-| `Aplicacion.Tests` | 23 | Pipeline de validación, handlers con dobles, visibilidad SQL vs memoria, destinatarios de notificaciones, búsqueda e importación de entidades |
+| `Aplicacion.Tests` | 26 | Pipeline de validación, handlers con dobles (incluida la versión vieja → conflicto), visibilidad SQL vs memoria, destinatarios de notificaciones, marcar todas como leídas, búsqueda e importación de entidades |
 | `Infraestructura.Tests` | 14 | Archivo de texto (comillas y separadores, archivo editado a mano, concurrencia), SQLite con migraciones, lectura del Excel real, factory, hasher de claves, JWT, enmascarado de correos |
 | `ArchitectureTests` | 12 | Dependencias entre capas y convenciones de nombres de la especificación |
-| `Servicios.IntegrationTests` | 17 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
-| Frontend (Vitest) | 39 | Etiquetas, traducción de errores, esquemas zod, permisos por rol en la interfaz, cliente HTTP, login, navegación |
+| `Servicios.IntegrationTests` | 19 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, concurrencia optimista (409 con versión vieja), marcar notificaciones como leídas, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
+| Frontend (Vitest + MSW) | 79 | Etiquetas, traducción de errores, esquemas zod, permisos por rol, cliente HTTP, sesión (expiración y 401), login, navegación, diálogos (foco y cambios sin guardar), flujos de alta, edición, cambio de estado, asignación y conflicto de versión, filtros en la URL, entidades, usuarios, notificaciones y página de error |
 
 `scripts/validate.ps1` (o `validate.sh`) ejecuta lo mismo que los jobs de backend y frontend del CI.
 
