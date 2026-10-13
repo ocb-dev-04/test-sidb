@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
+import type { SelectHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
 import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { CREATE_USER_SCHEMA, UPDATE_USER_SCHEMA } from '../schemas/userSchemas';
@@ -39,17 +40,20 @@ function FormActions({ isSubmitting, submitLabel, onCancel }: FormActionsProps) 
   );
 }
 
-function RoleSelect(properties: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select className="select" {...properties}>
-      {USER_ROLES.map((role) => (
-        <option key={role} value={role}>
-          {ROLE_LABELS[role]}
-        </option>
-      ))}
-    </select>
-  );
-}
+// react-hook-form necesita el ref del <select> para leer y validar el rol elegido.
+const RoleSelect = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
+  function RoleSelect(properties, reference) {
+    return (
+      <select className="select" ref={reference} {...properties}>
+        {USER_ROLES.map((role) => (
+          <option key={role} value={role}>
+            {ROLE_LABELS[role]}
+          </option>
+        ))}
+      </select>
+    );
+  },
+);
 
 interface CreateUserFormProps {
   onSubmit: (values: CreateUserFormValues) => Promise<void>;
