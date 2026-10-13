@@ -4,7 +4,10 @@ import { defineConfig, devices } from '@playwright/test';
 const DEFAULT_BASE_URL = 'http://localhost:8080';
 const TEST_TIMEOUT_MILLISECONDS = 60_000;
 const EXPECT_TIMEOUT_MILLISECONDS = 10_000;
-const VIEWPORT = { width: 1280, height: 720 };
+// En modo demostración se graba a 1920x1080 y a ritmo humano para el vídeo de evidencias.
+const DEMO = process.env.E2E_DEMO === '1';
+const VIEWPORT = DEMO ? { width: 1920, height: 1080 } : { width: 1280, height: 720 };
+const DEMO_SLOW_MOTION_MILLISECONDS = 900;
 
 export default defineConfig({
   testDir: './e2e',
@@ -33,7 +36,12 @@ export default defineConfig({
     {
       name: 'navegador',
       // E2E_CHANNEL=msedge usa el Edge instalado; sin valor, el Chromium de `npx playwright install`.
-      use: { ...devices['Desktop Chrome'], viewport: VIEWPORT, channel: process.env.E2E_CHANNEL || undefined },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: VIEWPORT,
+        channel: process.env.E2E_CHANNEL || undefined,
+        launchOptions: { slowMo: DEMO ? DEMO_SLOW_MOTION_MILLISECONDS : 0 },
+      },
     },
   ],
 });

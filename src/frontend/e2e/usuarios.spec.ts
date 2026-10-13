@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './demo';
 import { ADMINISTRATOR_EMAIL, apiLogin, createUser, DEMO_PASSWORD, signIn, uniqueSuffix } from './support';
 
 test.describe('Administración de usuarios', () => {

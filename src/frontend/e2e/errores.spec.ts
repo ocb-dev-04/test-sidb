@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './demo';
 import { ADMINISTRATOR_EMAIL, mainMenu, signIn } from './support';
 
 const SLOW_CHUNK_DELAY_MILLISECONDS = 1500;

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './demo';
 import type { APIRequestContext } from '@playwright/test';
 import { ADMINISTRATOR_EMAIL, apiLogin, createServiceRequest, createUser, signIn, uniqueSuffix } from './support';
 

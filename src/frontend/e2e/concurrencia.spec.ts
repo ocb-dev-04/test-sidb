@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
-import type { Browser, BrowserContext, Page } from '@playwright/test';
+import { DEMO, expect, instrumentPage, test } from './demo';
+import type { Browser, BrowserContext, Page, TestInfo } from '@playwright/test';
 import {
   ADMINISTRATOR_EMAIL,
   apiLogin,
@@ -12,22 +12,30 @@ import {
 
 const CONFLICT_MESSAGE = /Otro usuario modificó la solicitud/;
 
-const VIDEO_SIZE = { width: 1280, height: 720 };
+const VIDEO_SIZE = DEMO ? { width: 1920, height: 1080 } : { width: 1280, height: 720 };
 const openContexts: BrowserContext[] = [];
+const pendingTimings: ((testInfo: TestInfo) => Promise<void>)[] = [];
 
 // Dos navegadores independientes (contextos) sobre la misma solicitud, como dos personas a la vez. Se graban a
 // mano porque Playwright solo graba el contexto de la fixture `page`.
 async function openAs(browser: Browser, email: string, route: string): Promise<Page> {
   const context = await browser.newContext({
+    viewport: VIDEO_SIZE,
     recordVideo: { dir: test.info().outputPath('videos'), size: VIDEO_SIZE },
   });
   openContexts.push(context);
   const page = await context.newPage();
+  if (DEMO) {
+    pendingTimings.push(await instrumentPage(page, email.split('@')[0] ?? email));
+  }
   await signIn(page, context.request, email, route);
   return page;
 }
 
 test.afterEach(async () => {
+  for (const attachTiming of pendingTimings.splice(0)) {
+    await attachTiming(test.info());
+  }
   const pages = openContexts.flatMap((context) => context.pages());
   await Promise.all(openContexts.splice(0).map((context) => context.close()));
   for (const page of pages) {

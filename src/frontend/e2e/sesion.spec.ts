@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './demo';
 import { apiLogin, FIRST_ANALYST_EMAIL, signIn, signInWithForm, storeSession } from './support';
 
 const MILLISECONDS_PER_MINUTE = 60_000;

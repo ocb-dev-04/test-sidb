@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './demo';
 import { FIRST_ANALYST_EMAIL, mainMenu, signIn } from './support';
 
 const PHONE_VIEWPORT = { width: 375, height: 812 };

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './demo';
 import type { ApiSession } from './support';
 import {
   ADMINISTRATOR_EMAIL,
