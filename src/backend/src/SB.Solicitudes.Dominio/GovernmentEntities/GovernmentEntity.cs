@@ -31,8 +31,6 @@ public sealed class GovernmentEntity : Entity<int>
 
     public static GovernmentEntity Restore(int id, string name, string category, string stateBranch, string sector)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
         GovernmentEntity governmentEntity = new(id);
         governmentEntity.Update(name, category, stateBranch, sector);
         return governmentEntity;
@@ -42,11 +40,9 @@ public sealed class GovernmentEntity : Entity<int>
 
     public void Update(string name, string category, string stateBranch, string sector)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        Name = name.Trim();
-        Category = category.Trim();
-        StateBranch = stateBranch.Trim();
-        Sector = sector.Trim();
+        Name = DomainGuard.RequiredText(name, NAME_MAXIMUM_LENGTH);
+        Category = DomainGuard.BoundedText(category, CATEGORY_MAXIMUM_LENGTH);
+        StateBranch = DomainGuard.BoundedText(stateBranch, STATE_BRANCH_MAXIMUM_LENGTH);
+        Sector = DomainGuard.BoundedText(sector, SECTOR_MAXIMUM_LENGTH);
     }
 }

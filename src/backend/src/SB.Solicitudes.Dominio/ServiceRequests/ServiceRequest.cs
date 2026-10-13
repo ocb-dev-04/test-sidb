@@ -79,16 +79,12 @@ public sealed class ServiceRequest : Entity<Guid>
         string? evidenceReference,
         DateTime utcNow)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
-        ArgumentException.ThrowIfNullOrWhiteSpace(title);
-        ArgumentException.ThrowIfNullOrWhiteSpace(description);
-
         ServiceRequest serviceRequest = new(Guid.NewGuid())
         {
-            Code = code,
-            Title = title.Trim(),
-            Description = description.Trim(),
-            EvidenceReference = NormalizeOptional(evidenceReference),
+            Code = DomainGuard.RequiredText(code, ServiceRequestCode.MAXIMUM_LENGTH),
+            Title = DomainGuard.RequiredText(title, TITLE_MAXIMUM_LENGTH),
+            Description = DomainGuard.RequiredText(description, DESCRIPTION_MAXIMUM_LENGTH),
+            EvidenceReference = DomainGuard.OptionalText(evidenceReference, EVIDENCE_REFERENCE_MAXIMUM_LENGTH),
             Priority = priority,
             Status = ServiceRequestStatus.Registered,
             RequestTypeId = requestTypeId,
@@ -123,12 +119,12 @@ public sealed class ServiceRequest : Entity<Guid>
 
         if (!string.IsNullOrWhiteSpace(title))
         {
-            Title = title.Trim();
+            Title = DomainGuard.RequiredText(title, TITLE_MAXIMUM_LENGTH);
         }
 
         if (!string.IsNullOrWhiteSpace(description))
         {
-            Description = description.Trim();
+            Description = DomainGuard.RequiredText(description, DESCRIPTION_MAXIMUM_LENGTH);
         }
 
         if (priority is { } newPriority && newPriority != Priority)
@@ -142,7 +138,7 @@ public sealed class ServiceRequest : Entity<Guid>
 
         if (evidenceReference is not null)
         {
-            EvidenceReference = NormalizeOptional(evidenceReference);
+            EvidenceReference = DomainGuard.OptionalText(evidenceReference, EVIDENCE_REFERENCE_MAXIMUM_LENGTH);
         }
 
         UpdatedOnUtc = utcNow;
@@ -191,7 +187,7 @@ public sealed class ServiceRequest : Entity<Guid>
             return Result.Failure(ServiceRequestErrors.REOPEN_NOT_ALLOWED);
         }
 
-        string? normalizedComment = NormalizeOptional(comment);
+        string? normalizedComment = DomainGuard.OptionalText(comment, TRANSITION_COMMENT_MAXIMUM_LENGTH);
         if (normalizedComment is null && StatusTransitions.RequiresComment(Status, newStatus))
         {
             return Result.Failure(ServiceRequestErrors.COMMENT_REQUIRED);
@@ -216,9 +212,6 @@ public sealed class ServiceRequest : Entity<Guid>
         RaiseDomainEvent(new ServiceRequestCommentAddedDomainEvent(Id, comment.Id, authorId, visibility, utcNow));
         return comment;
     }
-
-    private static string? NormalizeOptional(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private void ApplyStatusTimestamps(
         ServiceRequestStatus previousStatus,
