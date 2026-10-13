@@ -74,5 +74,14 @@ internal sealed class NotificationRepository(ApplicationDbContext context) : INo
     public async Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         => await context.Notifications.FindAsync([id], cancellationToken);
 
+    public async Task<IReadOnlyList<Notification>> GetUnreadInAppForRecipientAsync(
+        Guid recipientUserId,
+        CancellationToken cancellationToken)
+        => await context.Notifications
+            .Where(notification => notification.RecipientUserId == recipientUserId)
+            .Where(notification => notification.Channel == NotificationChannel.InApp)
+            .Where(notification => notification.ReadOnUtc == null)
+            .ToArrayAsync(cancellationToken);
+
     public void AddRange(IEnumerable<Notification> notifications) => context.Notifications.AddRange(notifications);
 }

@@ -61,5 +61,7 @@ public interface INotificationRepository
 {
     Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Notification>> GetUnreadInAppForRecipientAsync(Guid recipientUserId, CancellationToken cancellationToken);
+
     void AddRange(IEnumerable<Notification> notifications);
 }
