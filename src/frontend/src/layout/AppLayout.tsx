@@ -58,7 +58,7 @@ export function AppLayout() {
               className="icon-button"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
-              onClick={logout}
+              onClick={() => logout()}
             >
               <LogoutIcon />
             </button>

@@ -22,6 +22,10 @@ export function readSession(): StoredSession | null {
   }
 }
 
+export function hasStoredSession(): boolean {
+  return sessionStorage.getItem(SESSION_STORAGE_KEY) !== null;
+}
+
 export function writeSession(session: StoredSession): void {
   sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
 }

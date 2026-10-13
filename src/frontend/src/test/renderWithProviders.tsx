@@ -23,6 +23,7 @@ interface RenderOptions {
   user?: UserResponse | null;
   login?: AuthContextValue['login'];
   route?: string;
+  sessionExpired?: boolean;
 }
 
 export function renderWithProviders(element: ReactElement, options: RenderOptions = {}) {
@@ -33,6 +34,7 @@ export function renderWithProviders(element: ReactElement, options: RenderOption
     isAuthenticated: user !== null,
     login: options.login ?? (async () => user as UserResponse),
     logout: () => undefined,
+    sessionExpired: options.sessionExpired ?? false,
   };
 
   return render(

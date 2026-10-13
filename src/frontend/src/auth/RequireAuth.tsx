@@ -14,7 +14,7 @@ export function RequireAuth({ children, roles }: RequireAuthProps) {
   const location = useLocation();
 
   if (!user) {
-    return <Navigate to={ROUTES.login} replace state={{ from: location.pathname }} />;
+    return <Navigate to={ROUTES.login} replace state={{ from: `${location.pathname}${location.search}` }} />;
   }
   if (roles && !roles.includes(user.role)) {
     return <Navigate to={ROUTES.home} replace />;

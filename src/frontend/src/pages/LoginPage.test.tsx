@@ -29,6 +29,12 @@ describe('LoginPage', () => {
     expect(await screen.findByText('Ingrese un correo electrónico válido.')).toBeInTheDocument();
   });
 
+  it('explica que la sesión expiró', () => {
+    renderWithProviders(<LoginPage />, { sessionExpired: true });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Su sesión expiró');
+  });
+
   it('muestra el error traducido que devuelve la API', async () => {
     const login = vi
       .fn()

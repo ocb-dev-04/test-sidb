@@ -1096,6 +1096,11 @@ textarea {
   color: var(--color-text-inverse);
 }
 
+.toast--warning {
+  background: var(--color-warning);
+  color: var(--color-text-inverse);
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
