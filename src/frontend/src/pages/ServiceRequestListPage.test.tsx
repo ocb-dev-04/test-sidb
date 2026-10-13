@@ -56,4 +56,33 @@ describe('ServiceRequestListPage', () => {
     await waitFor(() => expect(receivedSearches.at(-1)).toBe(SEARCH_TEXT));
     expect(screen.getByRole('searchbox')).toHaveValue(SEARCH_TEXT);
   });
+
+  it('ofrece crear una solicitud cuando no hay ninguna y no hay filtros', async () => {
+    server.use(
+      http.get(apiUrl('/api/catalogos/areas'), () => HttpResponse.json(AREAS)),
+      http.get(apiUrl('/api/catalogos/tipos-solicitud'), () => HttpResponse.json(REQUEST_TYPES)),
+      http.get(apiUrl('/api/solicitudes'), () => HttpResponse.json(buildPage([]))),
+    );
+
+    renderWithProviders(<ServiceRequestListPage />, { user: buildUser('Requester'), route: ROUTES.serviceRequests });
+
+    expect(await screen.findByText('No se encontraron solicitudes')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Crear solicitud' })).toHaveAttribute('href', ROUTES.newServiceRequest);
+  });
+
+  it('con filtros sugiere ajustarlos en lugar de crear', async () => {
+    server.use(
+      http.get(apiUrl('/api/catalogos/areas'), () => HttpResponse.json(AREAS)),
+      http.get(apiUrl('/api/catalogos/tipos-solicitud'), () => HttpResponse.json(REQUEST_TYPES)),
+      http.get(apiUrl('/api/solicitudes'), () => HttpResponse.json(buildPage([]))),
+    );
+
+    renderWithProviders(<ServiceRequestListPage />, {
+      user: buildUser('Requester'),
+      route: `${ROUTES.serviceRequests}?estado=Closed`,
+    });
+
+    expect(await screen.findByText('Ajuste o limpie los filtros para ver más resultados.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Crear solicitud' })).not.toBeInTheDocument();
+  });
 });

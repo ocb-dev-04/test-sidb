@@ -86,6 +86,7 @@ export function ServiceRequestDetailPage() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.serviceRequestDetail(serviceRequest.id) }),
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.serviceRequests }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard }),
       ]);
       showToast('Solicitud actualizada.');
     }

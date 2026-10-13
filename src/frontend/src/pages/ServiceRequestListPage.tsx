@@ -230,6 +230,13 @@ export function ServiceRequestListPage() {
         <EmptyState
           title="No se encontraron solicitudes"
           description={hasFilters ? 'Ajuste o limpie los filtros para ver más resultados.' : undefined}
+          action={
+            hasFilters ? undefined : (
+              <Link className="button button--primary" to={ROUTES.newServiceRequest}>
+                Crear solicitud
+              </Link>
+            )
+          }
         />
       )}
       {serviceRequests.data && serviceRequests.data.items.length > 0 && (
