@@ -43,7 +43,7 @@ internal sealed class NotificationDispatcher(
                 (notification, user) => new PendingNotification(notification, user.FullName, user.Email))
             .ToListAsync(cancellationToken);
 
-        if (pending.Count == 0)
+        if (!pending.Any())
         {
             return 0;
         }

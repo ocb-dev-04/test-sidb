@@ -69,7 +69,7 @@ public sealed class ApplicationDbContext(
                 })
                 .ToArray();
 
-            if (domainEvents.Length == 0)
+            if (!domainEvents.Any())
             {
                 return;
             }

@@ -56,7 +56,7 @@ internal sealed class TextFileGovernmentEntityStore(IOptions<GovernmentEntitySto
         => MutateAsync(
             entities =>
             {
-                int nextId = entities.Count == 0 ? 1 : entities.Max(entity => entity.Id) + 1;
+                int nextId = !entities.Any() ? 1 : entities.Max(entity => entity.Id) + 1;
                 GovernmentEntity created = governmentEntity.WithId(nextId);
                 entities.Add(created);
                 return created;

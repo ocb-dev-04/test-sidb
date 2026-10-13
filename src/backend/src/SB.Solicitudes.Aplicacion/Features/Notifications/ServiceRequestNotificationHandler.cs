@@ -122,7 +122,7 @@ internal sealed class ServiceRequestNotificationHandler(
                 Notification.Create(recipientId, serviceRequest.Id, channel, type, subject, message, utcNow)))
             .ToArray();
 
-        if (notifications.Length == 0)
+        if (!notifications.Any())
         {
             return;
         }

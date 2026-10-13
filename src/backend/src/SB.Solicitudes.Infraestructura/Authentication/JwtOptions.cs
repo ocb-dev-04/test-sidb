@@ -45,7 +45,7 @@ internal sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
             failures.Add("Jwt:ExpirationMinutes must be positive.");
         }
 
-        return failures.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(failures);
+        return !failures.Any() ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(failures);
     }
 }
 
