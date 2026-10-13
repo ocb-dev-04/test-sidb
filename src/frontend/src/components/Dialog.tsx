@@ -1,5 +1,7 @@
-import { useEffect, useId, useRef } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { DialogContext } from '../context/dialogContext';
+import type { DialogContextValue } from '../context/dialogContext';
 
 const INITIAL_FOCUS_SELECTOR = 'input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 const FOCUSABLE_SELECTOR = [
@@ -43,6 +45,27 @@ export function Dialog({ title, children, onClose, wide = false }: DialogProps) 
   // El padre suele pasar una función nueva en cada render; si el efecto dependiera de ella, el foco saltaría.
   const onCloseReference = useRef(onClose);
   onCloseReference.current = onClose;
+  const isDirtyReference = useRef(false);
+  const [isConfirmingDiscard, setIsConfirmingDiscard] = useState(false);
+  const isConfirmingDiscardReference = useRef(isConfirmingDiscard);
+  isConfirmingDiscardReference.current = isConfirmingDiscard;
+
+  const requestClose = useCallback(() => {
+    if (isDirtyReference.current) {
+      setIsConfirmingDiscard(true);
+    } else {
+      onCloseReference.current();
+    }
+  }, []);
+  const contextValue = useMemo<DialogContextValue>(
+    () => ({
+      reportDirty: (isDirty) => {
+        isDirtyReference.current = isDirty;
+      },
+      requestClose,
+    }),
+    [requestClose],
+  );
 
   useEffect(() => {
     const dialog = dialogReference.current;
@@ -54,7 +77,11 @@ export function Dialog({ title, children, onClose, wide = false }: DialogProps) 
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onCloseReference.current();
+        if (isConfirmingDiscardReference.current) {
+          setIsConfirmingDiscard(false);
+        } else {
+          requestClose();
+        }
       } else if (event.key === 'Tab' && dialog) {
         keepFocusInside(event, dialog);
       }
@@ -65,14 +92,14 @@ export function Dialog({ title, children, onClose, wide = false }: DialogProps) 
       document.body.style.overflow = previousBodyOverflow;
       previouslyFocused?.focus();
     };
-  }, []);
+  }, [requestClose]);
 
   return (
     <div
       className="dialog-backdrop"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
-          onClose();
+          requestClose();
         }
       }}
     >
@@ -87,7 +114,25 @@ export function Dialog({ title, children, onClose, wide = false }: DialogProps) 
         <h2 id={titleId} className="dialog__title">
           {title}
         </h2>
-        {children}
+        {isConfirmingDiscard && (
+          <div className="alert alert--warning dialog__discard" role="alert">
+            <span>Hay cambios sin guardar. ¿Desea descartarlos?</span>
+            <span className="inline">
+              <button
+                type="button"
+                className="button button--secondary button--small"
+                autoFocus
+                onClick={() => setIsConfirmingDiscard(false)}
+              >
+                Seguir editando
+              </button>
+              <button type="button" className="button button--danger button--small" onClick={() => onClose()}>
+                Descartar cambios
+              </button>
+            </span>
+          </div>
+        )}
+        <DialogContext.Provider value={contextValue}>{children}</DialogContext.Provider>
       </div>
     </div>
   );
@@ -97,6 +142,7 @@ interface ConfirmDialogProps {
   title: string;
   message: ReactNode;
   confirmLabel?: string;
+  cancelLabel?: string;
   isProcessing?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -106,6 +152,7 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel = 'Confirmar',
+  cancelLabel = 'Cancelar',
   isProcessing = false,
   onConfirm,
   onCancel,
@@ -115,7 +162,7 @@ export function ConfirmDialog({
       <div className="dialog__body">{message}</div>
       <div className="form-actions">
         <button type="button" className="button button--secondary" onClick={onCancel} disabled={isProcessing}>
-          Cancelar
+          {cancelLabel}
         </button>
         <button type="button" className="button button--danger" onClick={onConfirm} disabled={isProcessing}>
           {isProcessing ? 'Procesando…' : confirmLabel}

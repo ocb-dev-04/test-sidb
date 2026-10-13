@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { CREATE_USER_SCHEMA, UPDATE_USER_SCHEMA } from '../schemas/userSchemas';
 import type { CreateUserFormValues, UpdateUserFormValues } from '../schemas/userSchemas';
 import {
@@ -61,11 +62,12 @@ export function CreateUserForm({ onSubmit, onCancel }: CreateUserFormProps) {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<CreateUserFormValues>({
     resolver: zodResolver(CREATE_USER_SCHEMA),
     defaultValues: { fullName: '', email: '', password: '', role: 'Requester' },
   });
+  const { cancel } = useUnsavedChangesGuard(isDirty, isSubmitting, onCancel);
 
   const submit = async (values: CreateUserFormValues) => {
     setSubmitError(null);
@@ -103,7 +105,7 @@ export function CreateUserForm({ onSubmit, onCancel }: CreateUserFormProps) {
       <FormField label="Rol" required error={errors.role?.message}>
         <RoleSelect {...register('role')} />
       </FormField>
-      <FormActions isSubmitting={isSubmitting} submitLabel="Crear usuario" onCancel={onCancel} />
+      <FormActions isSubmitting={isSubmitting} submitLabel="Crear usuario" onCancel={cancel} />
     </form>
   );
 }
@@ -120,8 +122,9 @@ export function UpdateUserForm({ defaultValues, onSubmit, onCancel }: UpdateUser
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<UpdateUserFormValues>({ resolver: zodResolver(UPDATE_USER_SCHEMA), defaultValues });
+  const { cancel } = useUnsavedChangesGuard(isDirty, isSubmitting, onCancel);
 
   const submit = async (values: UpdateUserFormValues) => {
     setSubmitError(null);
@@ -146,7 +149,7 @@ export function UpdateUserForm({ defaultValues, onSubmit, onCancel }: UpdateUser
         <input type="checkbox" {...register('isActive')} />
         Usuario activo
       </label>
-      <FormActions isSubmitting={isSubmitting} submitLabel="Guardar cambios" onCancel={onCancel} />
+      <FormActions isSubmitting={isSubmitting} submitLabel="Guardar cambios" onCancel={cancel} />
     </form>
   );
 }

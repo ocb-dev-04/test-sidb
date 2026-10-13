@@ -9,6 +9,7 @@ import { SourceSelector } from '../components/SourceSelector';
 import { Alert, ErrorState, LoadingState } from '../components/States';
 import { PLACEHOLDER_SOURCE, SOURCE_PARAMETER, useGovernmentEntitySource } from '../hooks/useGovernmentEntitySource';
 import { useToast } from '../hooks/useToast';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { ROUTES } from '../layout/routes';
 import { GOVERNMENT_ENTITY_SCHEMA } from '../schemas/governmentEntitySchemas';
 import type { GovernmentEntityFormValues } from '../schemas/governmentEntitySchemas';
@@ -64,7 +65,7 @@ export function GovernmentEntityFormPage() {
     handleSubmit,
     reset,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<GovernmentEntityFormValues>({
     resolver: zodResolver(GOVERNMENT_ENTITY_SCHEMA),
     defaultValues: EMPTY_ENTITY,
@@ -79,6 +80,7 @@ export function GovernmentEntityFormPage() {
 
   const backToList = () =>
     navigate(source ? `${ROUTES.governmentEntities}?${SOURCE_PARAMETER}=${source}` : ROUTES.governmentEntities);
+  const { prompt } = useUnsavedChangesGuard(isDirty, isSubmitting, backToList);
 
   const submit = async (values: GovernmentEntityFormValues) => {
     if (!source) {
@@ -197,6 +199,7 @@ export function GovernmentEntityFormPage() {
             </button>
           </div>
         </form>
+        {prompt}
       </div>
     </Card>
   );

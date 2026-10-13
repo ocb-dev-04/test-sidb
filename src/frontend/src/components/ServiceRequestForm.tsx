@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAreas, useRequestTypes } from '../hooks/useCatalogs';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { SERVICE_REQUEST_SCHEMA } from '../schemas/serviceRequestSchemas';
 import type { ServiceRequestFormValues } from '../schemas/serviceRequestSchemas';
 import {
@@ -34,8 +35,9 @@ export function ServiceRequestForm({ defaultValues, submitLabel, onSubmit, onCan
     handleSubmit,
     setError,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ServiceRequestFormValues>({ resolver: zodResolver(SERVICE_REQUEST_SCHEMA), defaultValues });
+  const { cancel, prompt } = useUnsavedChangesGuard(isDirty, isSubmitting, onCancel);
 
   const titleLength = watch('title')?.length ?? 0;
   const descriptionLength = watch('description')?.length ?? 0;
@@ -128,13 +130,14 @@ export function ServiceRequestForm({ defaultValues, submitLabel, onSubmit, onCan
         <Alert tone="warning">No se pudieron cargar los catálogos de áreas o tipos de solicitud.</Alert>
       )}
       <div className="form-actions">
-        <button type="button" className="button button--secondary" onClick={onCancel} disabled={isSubmitting}>
+        <button type="button" className="button button--secondary" onClick={cancel} disabled={isSubmitting}>
           Cancelar
         </button>
         <button type="submit" className="button button--primary" disabled={isSubmitting}>
           {isSubmitting ? 'Guardando…' : submitLabel}
         </button>
       </div>
+      {prompt}
     </form>
   );
 }

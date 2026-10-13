@@ -1067,6 +1067,15 @@ textarea {
   display: inline-flex;
 }
 
+.dialog__discard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
 .toast-region {
   position: fixed;
   right: var(--space-5);
