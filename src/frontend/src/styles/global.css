@@ -1228,16 +1228,20 @@ textarea {
     width: min(var(--sidebar-width), 85vw);
     background: var(--color-brand-base);
     transform: translateX(-100%);
-    /* Oculta también para el teclado y los lectores de pantalla mientras está cerrada. */
+    /* Oculta también para el teclado y los lectores de pantalla mientras está cerrada. Al cerrar, visibility
+       espera a que termine el deslizamiento; al abrir cambia al instante para poder enfocar el primer enlace. */
     visibility: hidden;
     transition:
       transform 200ms ease,
-      visibility 200ms;
+      visibility 0s linear 200ms;
   }
 
   .sidebar--open {
     transform: translateX(0);
     visibility: visible;
+    transition:
+      transform 200ms ease,
+      visibility 0s;
   }
 
   .sidebar-backdrop--visible {
