@@ -62,4 +62,30 @@ describe('GovernmentEntityListPage', () => {
     expect(screen.getByText('Entidad 1')).toBeInTheDocument();
     expect(screen.queryByText('No se encontraron entidades')).not.toBeInTheDocument();
   });
+
+  it('en una fuente de solo lectura permite consultar pero no modificar', async () => {
+    registerEntityHandlers(buildEntities(1));
+
+    renderWithProviders(<GovernmentEntityListPage />, {
+      user: buildUser('Administrator'),
+      route: `${ROUTES.governmentEntities}?fuente=Excel`,
+    });
+
+    expect(await screen.findByText('Entidad 1')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Excel/, pressed: true })).toBeInTheDocument();
+    expect(screen.getByText(/Puede buscar y filtrar, pero no crear, editar ni/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Nueva entidad' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Eliminar Entidad 1' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Importar desde Excel' })).toBeDisabled();
+  });
+
+  it('el analista consulta sin acciones de administración', async () => {
+    registerEntityHandlers(buildEntities(1));
+
+    renderWithProviders(<GovernmentEntityListPage />, { user: buildUser('Analyst'), route: ROUTES.governmentEntities });
+
+    expect(await screen.findByText('Entidad 1')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Eliminar Entidad 1' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Importar desde Excel' })).not.toBeInTheDocument();
+  });
 });
