@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMarkNotificationAsRead, useNotificationList, useUnreadNotificationCount } from '../hooks/useNotifications';
+import {
+  useMarkAllNotificationsAsRead,
+  useMarkNotificationAsRead,
+  useNotificationList,
+  useUnreadNotificationCount,
+} from '../hooks/useNotifications';
 import { ROUTES } from '../layout/routes';
 import { errorMessage } from '../utils/errorMessages';
 import { formatDateTime } from '../utils/formatting';
@@ -16,7 +21,9 @@ export function NotificationBell() {
   const unreadCount = useUnreadNotificationCount();
   const notifications = useNotificationList(isOpen);
   const markAsRead = useMarkNotificationAsRead();
+  const markAllAsRead = useMarkAllNotificationsAsRead();
   const count = unreadCount.data ?? 0;
+  const items = notifications.data?.pages.flatMap((page) => page.items) ?? [];
 
   useEffect(() => {
     if (!isOpen) {
@@ -60,16 +67,26 @@ export function NotificationBell() {
         <div className="popover" role="dialog" aria-label="Notificaciones">
           <div className="popover__header">
             <span>Notificaciones</span>
-            <span className="table__muted">{count} sin leer</span>
+            <span className="inline">
+              <span className="table__muted">{count} sin leer</span>
+              {count > 0 && (
+                <button
+                  type="button"
+                  className="button button--ghost button--small"
+                  disabled={markAllAsRead.isPending}
+                  onClick={() => markAllAsRead.mutate()}
+                >
+                  Marcar todas como leídas
+                </button>
+              )}
+            </span>
           </div>
           {notifications.isPending && <LoadingState />}
           {notifications.isError && <p className="state text-danger">{errorMessage(notifications.error)}</p>}
-          {notifications.data && notifications.data.items.length === 0 && (
-            <EmptyState title="No tiene notificaciones" />
-          )}
-          {notifications.data && notifications.data.items.length > 0 && (
+          {notifications.data && items.length === 0 && <EmptyState title="No tiene notificaciones" />}
+          {items.length > 0 && (
             <ul className="popover__list">
-              {notifications.data.items.map((notification) => {
+              {items.map((notification) => {
                 const isUnread = !notification.readOnUtc;
                 return (
                   <li key={notification.id} className={`notification ${isUnread ? 'notification--unread' : ''}`.trim()}>
@@ -84,7 +101,12 @@ export function NotificationBell() {
                         {notification.serviceRequestId && (
                           <Link
                             to={ROUTES.serviceRequestDetail(notification.serviceRequestId)}
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => {
+                              if (isUnread) {
+                                markAsRead.mutate(notification.id);
+                              }
+                              setIsOpen(false);
+                            }}
                           >
                             Ver solicitud
                           </Link>
@@ -105,6 +127,18 @@ export function NotificationBell() {
                 );
               })}
             </ul>
+          )}
+          {notifications.hasNextPage && (
+            <div className="popover__footer">
+              <button
+                type="button"
+                className="button button--ghost button--small"
+                disabled={notifications.isFetchingNextPage}
+                onClick={() => notifications.fetchNextPage()}
+              >
+                {notifications.isFetchingNextPage ? 'Cargando…' : 'Ver más'}
+              </button>
+            </div>
           )}
         </div>
       )}
