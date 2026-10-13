@@ -39,8 +39,8 @@ export const serviceRequestService = {
     request<void>(`${BASE_PATH}/${id}`, { method: 'PATCH', body }),
   changeStatus: (id: string, body: ChangeStatusRequest) =>
     request<void>(`${BASE_PATH}/${id}/estado`, { method: 'PATCH', body }),
-  assign: (id: string, assigneeId: string) =>
-    request<void>(`${BASE_PATH}/${id}/asignacion`, { method: 'PATCH', body: { assigneeId } }),
+  assign: (id: string, assigneeId: string, version: string) =>
+    request<void>(`${BASE_PATH}/${id}/asignacion`, { method: 'PATCH', body: { assigneeId, version } }),
   addComment: (id: string, body: AddCommentRequest) =>
     request<CommentResponse>(`${BASE_PATH}/${id}/comentarios`, { method: 'POST', body }),
 };

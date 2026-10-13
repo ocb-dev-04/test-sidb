@@ -14,6 +14,8 @@ public interface IServiceRequestRepository
 {
     Task<ServiceRequest?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
+    bool HasVersion(ServiceRequest serviceRequest, byte[] version);
+
     void Add(ServiceRequest serviceRequest);
 }
 

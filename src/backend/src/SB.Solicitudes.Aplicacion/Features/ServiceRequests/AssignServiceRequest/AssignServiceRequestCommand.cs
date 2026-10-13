@@ -11,12 +11,15 @@ using SB.Solicitudes.Dominio.Users;
 
 namespace SB.Solicitudes.Aplicacion.Features.ServiceRequests.AssignServiceRequest;
 
-public sealed record AssignServiceRequestCommand(Guid ServiceRequestId, Guid AssigneeId) : ICommand<Unit>;
+public sealed record AssignServiceRequestCommand(Guid ServiceRequestId, byte[] Version, Guid AssigneeId) : ICommand<Unit>;
 
 internal sealed class AssignServiceRequestCommandValidator : AbstractValidator<AssignServiceRequestCommand>
 {
     public AssignServiceRequestCommandValidator()
-        => RuleFor(command => command.AssigneeId).NotEmpty();
+    {
+        RuleFor(command => command.Version).NotEmpty();
+        RuleFor(command => command.AssigneeId).NotEmpty();
+    }
 }
 
 internal sealed class AssignServiceRequestCommandHandler(
@@ -40,6 +43,11 @@ internal sealed class AssignServiceRequestCommandHandler(
         if (serviceRequest is null || !visibility.CanView(serviceRequest))
         {
             return ServiceRequestErrors.NOT_FOUND;
+        }
+
+        if (!serviceRequestRepository.HasVersion(serviceRequest, request.Version))
+        {
+            return ServiceRequestErrors.CONCURRENCY_CONFLICT;
         }
 
         User? assignee = await userRepository.GetByIdAsync(request.AssigneeId, cancellationToken);

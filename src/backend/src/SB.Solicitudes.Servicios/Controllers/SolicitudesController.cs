@@ -48,7 +48,7 @@ public sealed class SolicitudesController(ISender sender) : ApiControllerBase(se
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public Task<IActionResult> Update(Guid id, UpdateServiceRequestRequest request, CancellationToken cancellationToken)
         => SendForNoContentAsync(
-            new UpdateServiceRequestCommand(id, request.Title, request.Description, request.Priority, request.RequestTypeId, request.AreaId, request.EvidenceReference),
+            new UpdateServiceRequestCommand(id, request.Version, request.Title, request.Description, request.Priority, request.RequestTypeId, request.AreaId, request.EvidenceReference),
             cancellationToken);
 
     /// <summary>Cambia el estado; resolver, cerrar o reabrir exige comentario.</summary>
@@ -60,7 +60,7 @@ public sealed class SolicitudesController(ISender sender) : ApiControllerBase(se
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public Task<IActionResult> ChangeStatus(Guid id, ChangeStatusRequest request, CancellationToken cancellationToken)
-        => SendForNoContentAsync(new ChangeServiceRequestStatusCommand(id, request.NewStatus, request.Comment), cancellationToken);
+        => SendForNoContentAsync(new ChangeServiceRequestStatusCommand(id, request.Version, request.NewStatus, request.Comment), cancellationToken);
 
     /// <summary>Asigna o reasigna el responsable técnico.</summary>
     [HttpPatch("{id:guid}/asignacion")]
@@ -70,7 +70,7 @@ public sealed class SolicitudesController(ISender sender) : ApiControllerBase(se
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public Task<IActionResult> Assign(Guid id, AssignRequest request, CancellationToken cancellationToken)
-        => SendForNoContentAsync(new AssignServiceRequestCommand(id, request.AssigneeId), cancellationToken);
+        => SendForNoContentAsync(new AssignServiceRequestCommand(id, request.Version, request.AssigneeId), cancellationToken);
 
     /// <summary>Agrega un comentario público o interno (los internos no los ve el solicitante).</summary>
     [HttpPost("{id:guid}/comentarios")]
@@ -85,8 +85,9 @@ public sealed class SolicitudesController(ISender sender) : ApiControllerBase(se
             cancellationToken);
 }
 
-/// <summary>Campos opcionales: los nulos no se modifican.</summary>
+/// <summary>Campos opcionales: los nulos no se modifican. Version es la del detalle leído (control de concurrencia).</summary>
 public sealed record UpdateServiceRequestRequest(
+    byte[] Version,
     string? Title,
     string? Description,
     ServiceRequestPriority? Priority,
@@ -94,8 +95,8 @@ public sealed record UpdateServiceRequestRequest(
     int? AreaId,
     string? EvidenceReference);
 
-public sealed record ChangeStatusRequest(ServiceRequestStatus NewStatus, string? Comment);
+public sealed record ChangeStatusRequest(ServiceRequestStatus NewStatus, byte[] Version, string? Comment);
 
-public sealed record AssignRequest(Guid AssigneeId);
+public sealed record AssignRequest(Guid AssigneeId, byte[] Version);
 
 public sealed record AddCommentRequest(string Text, CommentVisibility Visibility);

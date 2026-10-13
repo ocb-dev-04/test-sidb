@@ -4,6 +4,7 @@ using SB.Solicitudes.Dominio.Catalogs;
 using SB.Solicitudes.Dominio.Notifications;
 using SB.Solicitudes.Dominio.ServiceRequests;
 using SB.Solicitudes.Dominio.Users;
+using SB.Solicitudes.Infraestructura.Persistence.Configurations;
 
 namespace SB.Solicitudes.Infraestructura.Persistence.Repositories;
 
@@ -12,6 +13,11 @@ internal sealed class ServiceRequestRepository(ApplicationDbContext context) : I
     // FindAsync consulta primero el change tracker: los handlers de eventos ven solicitudes aún no guardadas.
     public async Task<ServiceRequest?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         => await context.ServiceRequests.FindAsync([id], cancellationToken);
+
+    // Detecta formularios desactualizados; la carrera entre esta lectura y el guardado la cubre el rowversion.
+    public bool HasVersion(ServiceRequest serviceRequest, byte[] version)
+        => context.Entry(serviceRequest).Property<byte[]>(ServiceRequestConfiguration.ROW_VERSION_PROPERTY).OriginalValue is byte[] current
+            && current.AsSpan().SequenceEqual(version);
 
     public void Add(ServiceRequest serviceRequest) => context.ServiceRequests.Add(serviceRequest);
 }

@@ -1,12 +1,12 @@
 import type { ServiceRequestFormValues } from '../schemas/serviceRequestSchemas';
 import type { UpdateServiceRequestRequest } from '../types/api';
 
-// PATCH parcial: solo viajan los campos que cambiaron; los nulos no se modifican en el backend.
+// PATCH parcial: solo viajan los campos que cambiaron (más la versión leída); los nulos no se modifican.
 export function buildPartialUpdate(
   original: ServiceRequestFormValues,
   edited: ServiceRequestFormValues,
-): UpdateServiceRequestRequest {
-  const changes: UpdateServiceRequestRequest = {};
+): Omit<UpdateServiceRequestRequest, 'version'> {
+  const changes: Omit<UpdateServiceRequestRequest, 'version'> = {};
   if (edited.title !== original.title) {
     changes.title = edited.title;
   }

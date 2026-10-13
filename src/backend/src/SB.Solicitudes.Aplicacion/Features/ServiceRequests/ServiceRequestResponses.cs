@@ -45,7 +45,8 @@ public sealed record ServiceRequestDetailResponse(
     bool IsOverdue,
     IReadOnlyList<StatusHistoryResponse> StatusHistory,
     IReadOnlyList<CommentResponse> Comments,
-    IReadOnlyList<ServiceRequestStatus> AllowedTransitions);
+    IReadOnlyList<ServiceRequestStatus> AllowedTransitions,
+    byte[] Version);
 
 public sealed record StatusHistoryResponse(
     Guid Id,

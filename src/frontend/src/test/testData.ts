@@ -78,6 +78,7 @@ export function buildServiceRequestDetail(
     statusHistory: [],
     comments: [],
     allowedTransitions: ['InAnalysis'],
+    version: 'AAAAAAAAB9E=',
     ...overrides,
   };
 }

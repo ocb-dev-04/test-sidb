@@ -6,6 +6,11 @@ const HTTP_STATUS_TOO_MANY_REQUESTS = 429;
 const HTTP_STATUS_SERVER_ERROR = 500;
 
 export const GENERIC_ERROR_MESSAGE = 'Ocurrió un error inesperado. Intente de nuevo.';
+const CONCURRENCY_CONFLICT_CODE = 'serviceRequest.concurrencyConflict';
+
+export function isConcurrencyConflict(error: unknown): boolean {
+  return isApiError(error) && error.code === CONCURRENCY_CONFLICT_CODE;
+}
 
 export const ERROR_CODE_MESSAGES: Record<string, string> = {
   'network.unavailable': 'No fue posible conectar con el servidor. Verifique su conexión e intente de nuevo.',
@@ -31,7 +36,8 @@ export const ERROR_CODE_MESSAGES: Record<string, string> = {
   'serviceRequest.editNotAllowed': 'Solo puede editar sus propias solicitudes mientras estén en estado Registrada.',
   'serviceRequest.internalCommentNotAllowed': 'Los solicitantes no pueden agregar comentarios internos.',
   'serviceRequest.managementRequired': 'Solo administradores y analistas pueden gestionar solicitudes.',
-  'serviceRequest.concurrencyConflict': 'Otro usuario modificó la solicitud. Recargue la página e intente de nuevo.',
+  [CONCURRENCY_CONFLICT_CODE]:
+    'Otro usuario modificó la solicitud mientras la editaba. Se cargaron los datos más recientes: revíselos e intente de nuevo.',
   'serviceRequest.invalidTransition': 'La transición de estado solicitada no está permitida.',
   'notification.notFound': 'La notificación no existe.',
   'governmentEntity.notFound': 'La entidad gubernamental no existe.',

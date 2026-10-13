@@ -32,6 +32,7 @@ const SERVICE_REQUEST: ServiceRequestDetailResponse = {
   statusHistory: [],
   comments: [],
   allowedTransitions: ['InProgress', 'WaitingForRequester', 'Resolved', 'Closed'],
+  version: 'AAAAAAAAB9E=',
 };
 
 describe('visibilidad de acciones por rol', () => {

@@ -178,6 +178,9 @@ debería filtrar en SQL.
 **Decisión.** EF Core 8 para todo: migraciones, seguimiento de cambios en comandos, `AsNoTracking` + proyecciones
 directas a DTO en consultas (solo las columnas necesarias), `AsSplitQuery` en el detalle, índices compuestos por
 los filtros más usados, `rowversion` para concurrencia optimista y reintentos ante fallas transitorias.
+El detalle de una solicitud expone esa versión (`version`, base64) y la edición, el cambio de estado y la
+asignación la reenvían: si otro usuario guardó antes, la API responde 409 `serviceRequest.concurrencyConflict`
+en lugar de pisar el cambio, y el frontend recarga los datos conservando lo que el usuario estaba escribiendo.
 Un interceptor registra los comandos que superan un umbral configurable (`Database:SlowQueryThresholdMilliseconds`)
 sin registrar valores de parámetros.
 

@@ -5,6 +5,7 @@ using SB.Solicitudes.Aplicacion.Features.Dashboard;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests;
 using SB.Solicitudes.Aplicacion.Features.ServiceRequests.GetServiceRequests;
 using SB.Solicitudes.Dominio.ServiceRequests;
+using SB.Solicitudes.Infraestructura.Persistence.Configurations;
 
 namespace SB.Solicitudes.Infraestructura.Persistence.Repositories;
 
@@ -108,7 +109,8 @@ internal sealed class ServiceRequestReadRepository(ApplicationDbContext context)
                         comment.Author.FullName,
                         comment.CreatedOnUtc))
                     .ToList(),
-                new List<ServiceRequestStatus>()))
+                new List<ServiceRequestStatus>(),
+                EF.Property<byte[]>(serviceRequest, ServiceRequestConfiguration.ROW_VERSION_PROPERTY)))
             .FirstOrDefaultAsync(cancellationToken);
     }
 

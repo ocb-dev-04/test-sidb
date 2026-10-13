@@ -26,6 +26,7 @@ interface RenderOptions {
   login?: AuthContextValue['login'];
   route?: InitialEntry;
   sessionExpired?: boolean;
+  path?: string;
 }
 
 export function renderWithProviders(element: ReactElement, options: RenderOptions = {}) {
@@ -40,7 +41,7 @@ export function renderWithProviders(element: ReactElement, options: RenderOption
   };
 
   // Router de datos, como en la aplicación: useBlocker no funciona con MemoryRouter.
-  const router = createMemoryRouter([{ path: '*', element }], {
+  const router = createMemoryRouter([{ path: options.path ?? '*', element }], {
     initialEntries: [route],
     future: { v7_relativeSplatPath: true },
   });
