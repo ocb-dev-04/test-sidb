@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Outlet, useMatches } from 'react-router-dom';
 import { LogoutIcon, MenuIcon } from '../components/Icons';
 import { NotificationBell } from '../components/NotificationBell';
+import { LoadingState } from '../components/States';
 import { useAuth } from '../hooks/useAuth';
 import { roleLabel } from '../utils/labels';
 import type { RouteHandle } from './routes';
@@ -84,7 +85,9 @@ export function AppLayout() {
         </header>
         <main className="content-area">
           <div className="content-stack">
-            <Outlet />
+            <Suspense fallback={<LoadingState message="Cargando pantalla…" />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>
