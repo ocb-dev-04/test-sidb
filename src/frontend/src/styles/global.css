@@ -1140,6 +1140,18 @@ textarea {
 }
 
 /* Inicio de sesión */
+.error-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-surface-muted);
+}
+
+.error-page > .card {
+  width: min(100%, 560px);
+}
+
 .login-page {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
