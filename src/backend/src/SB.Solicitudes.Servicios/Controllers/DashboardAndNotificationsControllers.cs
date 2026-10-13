@@ -36,4 +36,13 @@ public sealed class NotificacionesController(ISender sender) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public Task<IActionResult> MarkAsRead(Guid id, CancellationToken cancellationToken)
         => SendForNoContentAsync(new MarkNotificationAsReadCommand(id), cancellationToken);
+
+    /// <summary>Marca como leídas todas las notificaciones pendientes del usuario autenticado.</summary>
+    [HttpPatch("leidas")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public Task<IActionResult> MarkAllAsRead(CancellationToken cancellationToken)
+    {
+        MarkAllNotificationsAsReadCommand command = new();
+        return SendForNoContentAsync(command, cancellationToken);
+    }
 }

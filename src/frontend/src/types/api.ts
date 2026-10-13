@@ -139,6 +139,8 @@ export interface ServiceRequestDetailResponse extends ServiceRequestSummaryRespo
   statusHistory: StatusHistoryResponse[];
   comments: CommentResponse[];
   allowedTransitions: ServiceRequestStatus[];
+  /** Versión de fila en base64: se devuelve en cada cambio para detectar ediciones concurrentes. */
+  version: string;
 }
 
 export interface ServiceRequestQuery {
@@ -171,6 +173,7 @@ export interface ServiceRequestCreatedResponse {
 }
 
 export interface UpdateServiceRequestRequest {
+  version: string;
   title?: string | null;
   description?: string | null;
   priority?: ServiceRequestPriority | null;
@@ -180,6 +183,7 @@ export interface UpdateServiceRequestRequest {
 }
 
 export interface ChangeStatusRequest {
+  version: string;
   newStatus: ServiceRequestStatus;
   comment?: string | null;
 }

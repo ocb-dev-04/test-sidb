@@ -43,6 +43,8 @@ public sealed record GetUnreadNotificationCountQuery : IQuery<int>;
 
 public sealed record MarkNotificationAsReadCommand(Guid NotificationId) : ICommand<Unit>;
 
+public sealed record MarkAllNotificationsAsReadCommand : ICommand<Unit>;
+
 internal sealed class GetMyNotificationsQueryValidator : AbstractValidator<GetMyNotificationsQuery>
 {
     public GetMyNotificationsQueryValidator()
@@ -80,6 +82,33 @@ internal sealed class MarkNotificationAsReadCommandHandler(
         }
 
         notification.MarkAsRead(timeProvider.GetUtcNow().UtcDateTime);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Unit.Value;
+    }
+}
+
+internal sealed class MarkAllNotificationsAsReadCommandHandler(
+    INotificationRepository notificationRepository,
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser,
+    TimeProvider timeProvider)
+    : ICommandHandler<MarkAllNotificationsAsReadCommand, Unit>
+{
+    public async Task<Result<Unit>> HandleAsync(MarkAllNotificationsAsReadCommand request, CancellationToken cancellationToken)
+    {
+        IReadOnlyList<Notification> unread
+            = await notificationRepository.GetUnreadInAppForRecipientAsync(currentUser.UserId, cancellationToken);
+        if (!unread.Any())
+        {
+            return Unit.Value;
+        }
+
+        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
+        foreach (Notification notification in unread)
+        {
+            notification.MarkAsRead(utcNow);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }

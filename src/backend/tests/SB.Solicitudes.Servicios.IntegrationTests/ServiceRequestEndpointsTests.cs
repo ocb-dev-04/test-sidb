@@ -27,6 +27,7 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
 {
     private const string SOLICITUDES_ROUTE = "/api/solicitudes";
     private const string ERROR_CODE = "code";
+    private const string TRACE_ID = "traceId";
     private const string RESOLUTION_COMMENT = "Se instaló el software solicitado.";
     private const string NEW_TITLE = "Instalar Power BI Desktop";
     private const string NEW_DESCRIPTION = "Necesito Power BI para los tableros del área.";
@@ -36,6 +37,8 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
 
     private const string SEEDED_CLOSED_REQUEST_SEARCH = "correo institucional";
     private const string SECOND_ANALYST_NAME = "José Martínez";
+
+    private static readonly byte[] ANY_VERSION = [1];
 
     [Fact]
     public async Task LoginShouldRejectWrongPasswordWithoutRevealingWhetherUserExists()
@@ -84,7 +87,7 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
 
         HttpResponseMessage response = await requester.PatchAsJsonAsync(
             $"{SOLICITUDES_ROUTE}/{closedRequestId}/estado",
-            new ChangeStatusRequest(ServiceRequestStatus.InAnalysis, RESOLUTION_COMMENT),
+            new ChangeStatusRequest(ServiceRequestStatus.InAnalysis, ANY_VERSION, RESOLUTION_COMMENT),
             ApiFactory.JSON_OPTIONS);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
@@ -101,9 +104,10 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
             ApiFactory.JSON_OPTIONS);
         Guid id = (await created.Content.ReadFromJsonAsync<ServiceRequestCreatedResponse>(ApiFactory.JSON_OPTIONS))!.Id;
         string statusRoute = $"{SOLICITUDES_ROUTE}/{id}/estado";
+        byte[] version = (await GetJsonAsync<ServiceRequestDetailResponse>(analyst, $"{SOLICITUDES_ROUTE}/{id}")).Version;
 
-        HttpResponseMessage withoutComment = await analyst.PatchAsJsonAsync(statusRoute, new ChangeStatusRequest(ServiceRequestStatus.Closed, null), ApiFactory.JSON_OPTIONS);
-        HttpResponseMessage withComment = await analyst.PatchAsJsonAsync(statusRoute, new ChangeStatusRequest(ServiceRequestStatus.Closed, RESOLUTION_COMMENT), ApiFactory.JSON_OPTIONS);
+        HttpResponseMessage withoutComment = await analyst.PatchAsJsonAsync(statusRoute, new ChangeStatusRequest(ServiceRequestStatus.Closed, version, null), ApiFactory.JSON_OPTIONS);
+        HttpResponseMessage withComment = await analyst.PatchAsJsonAsync(statusRoute, new ChangeStatusRequest(ServiceRequestStatus.Closed, version, RESOLUTION_COMMENT), ApiFactory.JSON_OPTIONS);
         ServiceRequestDetailResponse detail = await GetJsonAsync<ServiceRequestDetailResponse>(requester, $"{SOLICITUDES_ROUTE}/{id}");
         PagedResult<NotificationResponse> notifications = await GetJsonAsync<PagedResult<NotificationResponse>>(requester, "/api/notificaciones?pageSize=50");
 
@@ -114,6 +118,54 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
         detail.ResolutionComment.ShouldBe(RESOLUTION_COMMENT);
         detail.StatusHistory.Select(history => history.NewStatus).ShouldBe([ServiceRequestStatus.Registered, ServiceRequestStatus.Closed]);
         notifications.Items.ShouldContain(notification => notification.ServiceRequestId == id && notification.Type == NotificationType.ServiceRequestClosed);
+    }
+
+    [Fact]
+    public async Task ChangeWithStaleVersionShouldReturnConflict()
+    {
+        HttpClient requester = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_REQUESTER_EMAIL);
+        HttpClient analyst = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_ANALYST_EMAIL);
+        HttpResponseMessage created = await requester.PostAsJsonAsync(
+            SOLICITUDES_ROUTE,
+            new CreateServiceRequestCommand(NEW_TITLE, NEW_DESCRIPTION, ServiceRequestPriority.Medium, SUPPORT_TYPE_ID, FINANCE_AREA_ID, null),
+            ApiFactory.JSON_OPTIONS);
+        Guid id = (await created.Content.ReadFromJsonAsync<ServiceRequestCreatedResponse>(ApiFactory.JSON_OPTIONS))!.Id;
+        string detailRoute = $"{SOLICITUDES_ROUTE}/{id}";
+        byte[] readVersion = (await GetJsonAsync<ServiceRequestDetailResponse>(analyst, detailRoute)).Version;
+        UpdateServiceRequestRequest requesterEdit = new(readVersion, NEW_TITLE + " (corregido)", null, null, null, null, null);
+        ChangeStatusRequest staleChange = new(ServiceRequestStatus.InAnalysis, readVersion, null);
+
+        HttpResponseMessage edited = await requester.PatchAsJsonAsync(detailRoute, requesterEdit, ApiFactory.JSON_OPTIONS);
+        HttpResponseMessage conflict = await analyst.PatchAsJsonAsync($"{detailRoute}/estado", staleChange, ApiFactory.JSON_OPTIONS);
+        ServiceRequestDetailResponse detail = await GetJsonAsync<ServiceRequestDetailResponse>(analyst, detailRoute);
+
+        edited.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        conflict.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await ErrorCodeAsync(conflict)).ShouldBe(ServiceRequestErrors.CONCURRENCY_CONFLICT.Code);
+        detail.Status.ShouldBe(ServiceRequestStatus.Registered);
+        detail.Version.ShouldNotBe(readVersion);
+    }
+
+    [Fact]
+    public async Task CommentShouldNotInvalidateVersionReadBeforeIt()
+    {
+        HttpClient requester = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_REQUESTER_EMAIL);
+        HttpClient analyst = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_ANALYST_EMAIL);
+        HttpResponseMessage created = await requester.PostAsJsonAsync(
+            SOLICITUDES_ROUTE,
+            new CreateServiceRequestCommand(NEW_TITLE, NEW_DESCRIPTION, ServiceRequestPriority.Medium, SUPPORT_TYPE_ID, FINANCE_AREA_ID, null),
+            ApiFactory.JSON_OPTIONS);
+        Guid id = (await created.Content.ReadFromJsonAsync<ServiceRequestCreatedResponse>(ApiFactory.JSON_OPTIONS))!.Id;
+        string detailRoute = $"{SOLICITUDES_ROUTE}/{id}";
+        byte[] readVersion = (await GetJsonAsync<ServiceRequestDetailResponse>(analyst, detailRoute)).Version;
+        AddCommentRequest comment = new(RESOLUTION_COMMENT, CommentVisibility.Public);
+        ChangeStatusRequest change = new(ServiceRequestStatus.InAnalysis, readVersion, null);
+
+        HttpResponseMessage commented = await requester.PostAsJsonAsync($"{detailRoute}/comentarios", comment, ApiFactory.JSON_OPTIONS);
+        HttpResponseMessage changed = await analyst.PatchAsJsonAsync($"{detailRoute}/estado", change, ApiFactory.JSON_OPTIONS);
+
+        commented.StatusCode.ShouldBe(HttpStatusCode.Created);
+        changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
     }
 
     [Fact]
@@ -148,7 +200,7 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     }
 
     [Fact]
-    public async Task ListShouldValidatePageSize()
+    public async Task ListShouldReturnValidationProblemWithTraceIdWhenPageSizeIsOversized()
     {
         HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);
 
@@ -157,6 +209,8 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         ValidationProblemDetails? problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
         problem!.Errors.ShouldContainKey("pageSize");
+        problem.Extensions.ShouldContainKey(TRACE_ID);
+        problem.Extensions.ShouldContainKey(ERROR_CODE);
     }
 
     [Fact]

@@ -12,7 +12,7 @@ import type { LoginFormValues } from '../schemas/authSchemas';
 import { errorMessage } from '../utils/errorMessages';
 
 export function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, sessionExpired } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -50,6 +50,9 @@ export function LoginPage() {
           <p className="text-muted">Ingrese sus credenciales institucionales para continuar.</p>
           <form className="stack" onSubmit={handleSubmit(onSubmit)} noValidate>
             {submitError && <Alert tone="error">{submitError}</Alert>}
+            {sessionExpired && !submitError && (
+              <Alert tone="info">Su sesión expiró. Inicie sesión de nuevo para continuar.</Alert>
+            )}
             <FormField label="Correo electrónico" error={errors.email?.message} required>
               <input className="input" type="email" autoComplete="username" {...register('email')} />
             </FormField>

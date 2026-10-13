@@ -64,7 +64,7 @@ public sealed class ServiceRequestCommandHandlerTests
         ChangeServiceRequestStatusCommandHandler handler = CreateChangeStatusHandler(UserRole.Requester, TestData.REQUESTER_ID);
 
         Result<Unit> result = await handler.HandleAsync(
-            new ChangeServiceRequestStatusCommand(Guid.NewGuid(), ServiceRequestStatus.InAnalysis, null),
+            new ChangeServiceRequestStatusCommand(Guid.NewGuid(), TestData.ROW_VERSION, ServiceRequestStatus.InAnalysis, null),
             CancellationToken.None);
 
         result.Error.ShouldBe(ServiceRequestErrors.MANAGEMENT_REQUIRED);
@@ -79,7 +79,7 @@ public sealed class ServiceRequestCommandHandlerTests
         ChangeServiceRequestStatusCommandHandler handler = CreateChangeStatusHandler(UserRole.Analyst, TestData.ANALYST_ID);
 
         Result<Unit> result = await handler.HandleAsync(
-            new ChangeServiceRequestStatusCommand(serviceRequest.Id, ServiceRequestStatus.InAnalysis, null),
+            new ChangeServiceRequestStatusCommand(serviceRequest.Id, TestData.ROW_VERSION, ServiceRequestStatus.InAnalysis, null),
             CancellationToken.None);
 
         result.Error.ShouldBe(ServiceRequestErrors.NOT_FOUND);
@@ -91,15 +91,33 @@ public sealed class ServiceRequestCommandHandlerTests
     {
         ServiceRequest serviceRequest = TestData.NewServiceRequest();
         _serviceRequestRepository.GetByIdAsync(serviceRequest.Id, Arg.Any<CancellationToken>()).Returns(serviceRequest);
+        _serviceRequestRepository.HasVersion(serviceRequest, TestData.ROW_VERSION).Returns(true);
         ChangeServiceRequestStatusCommandHandler handler = CreateChangeStatusHandler(UserRole.Analyst, TestData.ANALYST_ID);
 
         Result<Unit> result = await handler.HandleAsync(
-            new ChangeServiceRequestStatusCommand(serviceRequest.Id, ServiceRequestStatus.InAnalysis, null),
+            new ChangeServiceRequestStatusCommand(serviceRequest.Id, TestData.ROW_VERSION, ServiceRequestStatus.InAnalysis, null),
             CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         serviceRequest.Status.ShouldBe(ServiceRequestStatus.InAnalysis);
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ChangeStatusShouldReturnConflictWhenVersionIsStale()
+    {
+        ServiceRequest serviceRequest = TestData.NewServiceRequest();
+        _serviceRequestRepository.GetByIdAsync(serviceRequest.Id, Arg.Any<CancellationToken>()).Returns(serviceRequest);
+        _serviceRequestRepository.HasVersion(serviceRequest, TestData.ROW_VERSION).Returns(false);
+        ChangeServiceRequestStatusCommandHandler handler = CreateChangeStatusHandler(UserRole.Analyst, TestData.ANALYST_ID);
+
+        Result<Unit> result = await handler.HandleAsync(
+            new ChangeServiceRequestStatusCommand(serviceRequest.Id, TestData.ROW_VERSION, ServiceRequestStatus.InAnalysis, null),
+            CancellationToken.None);
+
+        result.Error.ShouldBe(ServiceRequestErrors.CONCURRENCY_CONFLICT);
+        serviceRequest.Status.ShouldBe(ServiceRequestStatus.Registered);
+        await _unitOfWork.DidNotReceiveWithAnyArgs().SaveChangesAsync(default);
     }
 
     [Fact]

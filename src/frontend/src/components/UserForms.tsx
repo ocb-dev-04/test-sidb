@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
+import type { SelectHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { CREATE_USER_SCHEMA, UPDATE_USER_SCHEMA } from '../schemas/userSchemas';
 import type { CreateUserFormValues, UpdateUserFormValues } from '../schemas/userSchemas';
 import {
@@ -38,17 +40,20 @@ function FormActions({ isSubmitting, submitLabel, onCancel }: FormActionsProps) 
   );
 }
 
-function RoleSelect(properties: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select className="select" {...properties}>
-      {USER_ROLES.map((role) => (
-        <option key={role} value={role}>
-          {ROLE_LABELS[role]}
-        </option>
-      ))}
-    </select>
-  );
-}
+// react-hook-form necesita el ref del <select> para leer y validar el rol elegido.
+const RoleSelect = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
+  function RoleSelect(properties, reference) {
+    return (
+      <select className="select" ref={reference} {...properties}>
+        {USER_ROLES.map((role) => (
+          <option key={role} value={role}>
+            {ROLE_LABELS[role]}
+          </option>
+        ))}
+      </select>
+    );
+  },
+);
 
 interface CreateUserFormProps {
   onSubmit: (values: CreateUserFormValues) => Promise<void>;
@@ -61,11 +66,12 @@ export function CreateUserForm({ onSubmit, onCancel }: CreateUserFormProps) {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<CreateUserFormValues>({
     resolver: zodResolver(CREATE_USER_SCHEMA),
     defaultValues: { fullName: '', email: '', password: '', role: 'Requester' },
   });
+  const { cancel } = useUnsavedChangesGuard(isDirty, isSubmitting, onCancel);
 
   const submit = async (values: CreateUserFormValues) => {
     setSubmitError(null);
@@ -103,7 +109,7 @@ export function CreateUserForm({ onSubmit, onCancel }: CreateUserFormProps) {
       <FormField label="Rol" required error={errors.role?.message}>
         <RoleSelect {...register('role')} />
       </FormField>
-      <FormActions isSubmitting={isSubmitting} submitLabel="Crear usuario" onCancel={onCancel} />
+      <FormActions isSubmitting={isSubmitting} submitLabel="Crear usuario" onCancel={cancel} />
     </form>
   );
 }
@@ -120,8 +126,9 @@ export function UpdateUserForm({ defaultValues, onSubmit, onCancel }: UpdateUser
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<UpdateUserFormValues>({ resolver: zodResolver(UPDATE_USER_SCHEMA), defaultValues });
+  const { cancel } = useUnsavedChangesGuard(isDirty, isSubmitting, onCancel);
 
   const submit = async (values: UpdateUserFormValues) => {
     setSubmitError(null);
@@ -146,7 +153,7 @@ export function UpdateUserForm({ defaultValues, onSubmit, onCancel }: UpdateUser
         <input type="checkbox" {...register('isActive')} />
         Usuario activo
       </label>
-      <FormActions isSubmitting={isSubmitting} submitLabel="Guardar cambios" onCancel={onCancel} />
+      <FormActions isSubmitting={isSubmitting} submitLabel="Guardar cambios" onCancel={cancel} />
     </form>
   );
 }

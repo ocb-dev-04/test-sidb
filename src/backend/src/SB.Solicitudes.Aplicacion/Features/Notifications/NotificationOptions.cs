@@ -7,7 +7,13 @@ public sealed class NotificationOptions
 {
     public const string SECTION_NAME = "Notifications";
 
-    public IReadOnlyList<NotificationChannel> Channels { get; init; } = [NotificationChannel.InApp, NotificationChannel.Email];
+    public static readonly IReadOnlyList<NotificationChannel> DEFAULT_CHANNELS = [NotificationChannel.InApp, NotificationChannel.Email];
+
+    // Sin valor inicial: el binder de configuración agrega a una lista ya cargada y duplicaba cada canal.
+    public IReadOnlyList<NotificationChannel> Channels { get; init; } = [];
+
+    public IReadOnlyList<NotificationChannel> EffectiveChannels
+        => Channels.Any() ? Channels.Distinct().ToArray() : DEFAULT_CHANNELS;
 }
 
 internal static class ServiceRequestStatusNames

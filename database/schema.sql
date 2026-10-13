@@ -13,7 +13,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [Areas] (
@@ -27,7 +27,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [ContadoresSolicitud] (
@@ -40,7 +40,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [TiposSolicitud] (
@@ -55,7 +55,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [Usuarios] (
@@ -63,7 +63,7 @@ BEGIN
         [NombreCompleto] nvarchar(150) NOT NULL,
         [Correo] nvarchar(256) NOT NULL,
         [ClaveHash] nvarchar(256) NOT NULL,
-        [Rol] nvarchar(30) NOT NULL,
+        [Rol] varchar(50) NOT NULL,
         [Activo] bit NOT NULL,
         [FechaCreacion] datetime2 NOT NULL,
         CONSTRAINT [PK_Usuarios] PRIMARY KEY ([Id])
@@ -73,7 +73,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [Solicitudes] (
@@ -82,8 +82,8 @@ BEGIN
         [Titulo] nvarchar(150) NOT NULL,
         [Descripcion] nvarchar(4000) NOT NULL,
         [ReferenciaEvidencia] nvarchar(500) NULL,
-        [Prioridad] nvarchar(30) NOT NULL,
-        [Estado] nvarchar(30) NOT NULL,
+        [Prioridad] varchar(50) NOT NULL,
+        [Estado] varchar(50) NOT NULL,
         [TipoSolicitudId] int NOT NULL,
         [AreaId] int NOT NULL,
         [SolicitanteId] uniqueidentifier NOT NULL,
@@ -94,7 +94,7 @@ BEGIN
         [FechaResolucion] datetime2 NULL,
         [FechaCierre] datetime2 NULL,
         [ComentarioResolucion] nvarchar(1000) NULL,
-        [VersionFila] rowversion NULL,
+        [VersionFila] rowversion NOT NULL,
         CONSTRAINT [PK_Solicitudes] PRIMARY KEY ([Id]),
         CONSTRAINT [FK_Solicitudes_Areas_AreaId] FOREIGN KEY ([AreaId]) REFERENCES [Areas] ([Id]) ON DELETE NO ACTION,
         CONSTRAINT [FK_Solicitudes_TiposSolicitud_TipoSolicitudId] FOREIGN KEY ([TipoSolicitudId]) REFERENCES [TiposSolicitud] ([Id]) ON DELETE NO ACTION,
@@ -106,7 +106,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [Comentarios] (
@@ -114,7 +114,7 @@ BEGIN
         [SolicitudId] uniqueidentifier NOT NULL,
         [UsuarioId] uniqueidentifier NOT NULL,
         [Texto] nvarchar(2000) NOT NULL,
-        [Visibilidad] nvarchar(30) NOT NULL,
+        [Visibilidad] varchar(50) NOT NULL,
         [Fecha] datetime2 NOT NULL,
         CONSTRAINT [PK_Comentarios] PRIMARY KEY ([Id]),
         CONSTRAINT [FK_Comentarios_Solicitudes_SolicitudId] FOREIGN KEY ([SolicitudId]) REFERENCES [Solicitudes] ([Id]) ON DELETE CASCADE,
@@ -125,14 +125,14 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [HistorialEstados] (
         [Id] uniqueidentifier NOT NULL,
         [SolicitudId] uniqueidentifier NOT NULL,
-        [EstadoAnterior] nvarchar(30) NULL,
-        [EstadoNuevo] nvarchar(30) NOT NULL,
+        [EstadoAnterior] varchar(50) NULL,
+        [EstadoNuevo] varchar(50) NOT NULL,
         [UsuarioId] uniqueidentifier NOT NULL,
         [Fecha] datetime2 NOT NULL,
         [Comentario] nvarchar(1000) NULL,
@@ -145,18 +145,18 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE TABLE [Notificaciones] (
         [Id] uniqueidentifier NOT NULL,
         [UsuarioDestinoId] uniqueidentifier NOT NULL,
         [SolicitudId] uniqueidentifier NULL,
-        [Canal] nvarchar(30) NOT NULL,
-        [Tipo] nvarchar(30) NOT NULL,
+        [Canal] varchar(50) NOT NULL,
+        [Tipo] varchar(50) NOT NULL,
         [Asunto] nvarchar(200) NOT NULL,
         [Mensaje] nvarchar(2000) NOT NULL,
-        [Estado] nvarchar(30) NOT NULL,
+        [Estado] varchar(50) NOT NULL,
         [Intentos] int NOT NULL,
         [UltimoError] nvarchar(1000) NULL,
         [FechaCreacion] datetime2 NOT NULL,
@@ -171,7 +171,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE UNIQUE INDEX [UX_Areas_Nombre] ON [Areas] ([Nombre]);
@@ -180,7 +180,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Comentarios_Solicitud_Fecha] ON [Comentarios] ([SolicitudId], [Fecha]);
@@ -189,7 +189,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Comentarios_UsuarioId] ON [Comentarios] ([UsuarioId]);
@@ -198,7 +198,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_HistorialEstados_Solicitud_Fecha] ON [HistorialEstados] ([SolicitudId], [Fecha]);
@@ -207,7 +207,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_HistorialEstados_UsuarioId] ON [HistorialEstados] ([UsuarioId]);
@@ -216,7 +216,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Notificaciones_Destino_Canal_Lectura] ON [Notificaciones] ([UsuarioDestinoId], [Canal], [FechaLectura]);
@@ -225,7 +225,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Notificaciones_Estado_Fecha] ON [Notificaciones] ([Estado], [FechaCreacion]);
@@ -234,7 +234,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Notificaciones_SolicitudId] ON [Notificaciones] ([SolicitudId]);
@@ -243,7 +243,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_AreaId] ON [Solicitudes] ([AreaId]);
@@ -252,7 +252,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_Estado_Prioridad] ON [Solicitudes] ([Estado], [Prioridad]);
@@ -261,7 +261,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_FechaCompromiso] ON [Solicitudes] ([FechaCompromiso]);
@@ -270,7 +270,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_FechaCreacion] ON [Solicitudes] ([FechaCreacion]);
@@ -279,7 +279,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_Responsable_Estado] ON [Solicitudes] ([ResponsableId], [Estado]);
@@ -288,7 +288,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_Solicitante_Fecha] ON [Solicitudes] ([SolicitanteId], [FechaCreacion]);
@@ -297,7 +297,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Solicitudes_TipoSolicitudId] ON [Solicitudes] ([TipoSolicitudId]);
@@ -306,7 +306,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE UNIQUE INDEX [UX_Solicitudes_Codigo] ON [Solicitudes] ([Codigo]);
@@ -315,7 +315,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE UNIQUE INDEX [UX_TiposSolicitud_Nombre] ON [TiposSolicitud] ([Nombre]);
@@ -324,7 +324,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE INDEX [IX_Usuarios_Rol_Activo] ON [Usuarios] ([Rol], [Activo]);
@@ -333,7 +333,7 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     CREATE UNIQUE INDEX [UX_Usuarios_Correo] ON [Usuarios] ([Correo]);
@@ -342,11 +342,11 @@ GO
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'20261010060831_InitialSchema'
+    WHERE [MigrationId] = N'20261013025511_InitialSchema'
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261010060831_InitialSchema', N'8.0.31');
+    VALUES (N'20261013025511_InitialSchema', N'8.0.31');
 END;
 GO
 

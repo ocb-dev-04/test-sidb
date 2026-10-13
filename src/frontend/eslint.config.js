@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import typescript from 'typescript-eslint';
 
 export default typescript.config(
-  { ignores: ['dist', 'node_modules', 'coverage'] },
+  { ignores: ['dist', 'node_modules', 'coverage', 'e2e-results', 'e2e-report'] },
   {
     extends: [javascript.configs.recommended, ...typescript.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -18,5 +18,9 @@ export default typescript.config(
       '@typescript-eslint/consistent-type-imports': 'error',
       eqeqeq: ['error', 'always'],
     },
+  },
+  {
+    files: ['e2e/**/*.{ts,mjs}', 'playwright.config.ts'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
 );

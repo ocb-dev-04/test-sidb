@@ -12,6 +12,7 @@ namespace SB.Solicitudes.Aplicacion.Features.ServiceRequests.ChangeServiceReques
 
 public sealed record ChangeServiceRequestStatusCommand(
     Guid ServiceRequestId,
+    byte[] Version,
     ServiceRequestStatus NewStatus,
     string? Comment) : ICommand<Unit>;
 
@@ -19,6 +20,7 @@ internal sealed class ChangeServiceRequestStatusCommandValidator : AbstractValid
 {
     public ChangeServiceRequestStatusCommandValidator()
     {
+        RuleFor(command => command.Version).NotEmpty();
         RuleFor(command => command.NewStatus).IsInEnum();
         RuleFor(command => command.Comment).MaximumLength(ServiceRequest.TRANSITION_COMMENT_MAXIMUM_LENGTH);
     }
@@ -44,6 +46,11 @@ internal sealed class ChangeServiceRequestStatusCommandHandler(
         if (serviceRequest is null || !visibility.CanView(serviceRequest))
         {
             return ServiceRequestErrors.NOT_FOUND;
+        }
+
+        if (!serviceRequestRepository.HasVersion(serviceRequest, request.Version))
+        {
+            return ServiceRequestErrors.CONCURRENCY_CONFLICT;
         }
 
         Result changeResult = serviceRequest.ChangeStatus(

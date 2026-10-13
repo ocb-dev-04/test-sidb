@@ -16,16 +16,12 @@ public sealed class Area : Entity<int>
 
     public static Area Create(string name)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        return new Area { Name = name.Trim(), IsActive = true };
+        return new Area { Name = DomainGuard.RequiredText(name, NAME_MAXIMUM_LENGTH), IsActive = true };
     }
 
     public void Update(string name, bool isActive)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        Name = name.Trim();
+        Name = DomainGuard.RequiredText(name, NAME_MAXIMUM_LENGTH);
         IsActive = isActive;
     }
 }

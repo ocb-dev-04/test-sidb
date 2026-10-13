@@ -1,14 +1,21 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '../components/Card';
 import { FilterPanel } from '../components/FilterPanel';
 import { Pagination } from '../components/Pagination';
 import { ServiceRequestTable } from '../components/ServiceRequestTable';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { useAuth } from '../hooks/useAuth';
+import { useClampedPage } from '../hooks/useClampedPage';
 import { useAreas, useRequestTypes } from '../hooks/useCatalogs';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import {
+  SEARCH_PARAMETER,
+  readOption,
+  readPositiveInteger,
+  useListSearchParameters,
+  useSearchText,
+} from '../hooks/useListSearchParameters';
 import { ROUTES } from '../layout/routes';
 import { canManageServiceRequests } from '../auth/permissions';
 import { SEARCH_MAXIMUM_LENGTH } from '../schemas/validationLimits';
@@ -20,105 +27,51 @@ import {
   SERVICE_REQUEST_STATUSES,
   SORT_DIRECTIONS,
 } from '../types/api';
-import type {
-  ServiceRequestPriority,
-  ServiceRequestQuery,
-  ServiceRequestSortField,
-  ServiceRequestStatus,
-  SortDirection,
-} from '../types/api';
-import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../utils/pagination';
+import type { ServiceRequestQuery, ServiceRequestSortField, SortDirection } from '../types/api';
 import { PRIORITY_LABELS, SORT_DIRECTION_LABELS, SORT_FIELD_LABELS, STATUS_LABELS } from '../utils/labels';
 
 const DEFAULT_SORT_FIELD: ServiceRequestSortField = 'CreatedOn';
 const DEFAULT_SORT_DIRECTION: SortDirection = 'Descending';
-const NON_FILTER_PARAMETERS: readonly string[] = ['pagina', 'filas', 'orden', 'direccion'];
+const SORT_FIELD_PARAMETER = 'orden';
+const SORT_DIRECTION_PARAMETER = 'direccion';
+const SORT_PARAMETERS: readonly string[] = [SORT_FIELD_PARAMETER, SORT_DIRECTION_PARAMETER];
 
-function includesValue<TValue extends string>(
-  values: readonly TValue[],
-  candidate: string | null,
-): candidate is TValue {
-  return candidate !== null && (values as readonly string[]).includes(candidate);
-}
-
-function optionalNumber(value: string | null): number | undefined {
-  const parsed = Number(value);
-  return value && Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-function readQuery(parameters: URLSearchParams): ServiceRequestQuery {
-  const status = parameters.get('estado');
-  const priority = parameters.get('prioridad');
-  const sortBy = parameters.get('orden');
-  const sortDirection = parameters.get('direccion');
+function readFilters(parameters: URLSearchParams): Omit<ServiceRequestQuery, 'page' | 'pageSize'> {
   return {
-    search: parameters.get('buscar') ?? undefined,
-    status: includesValue<ServiceRequestStatus>(SERVICE_REQUEST_STATUSES, status) ? status : undefined,
-    priority: includesValue<ServiceRequestPriority>(SERVICE_REQUEST_PRIORITIES, priority) ? priority : undefined,
-    areaId: optionalNumber(parameters.get('area')),
-    requestTypeId: optionalNumber(parameters.get('tipo')),
+    search: parameters.get(SEARCH_PARAMETER) ?? undefined,
+    status: readOption(SERVICE_REQUEST_STATUSES, parameters.get('estado')),
+    priority: readOption(SERVICE_REQUEST_PRIORITIES, parameters.get('prioridad')),
+    areaId: readPositiveInteger(parameters.get('area')),
+    requestTypeId: readPositiveInteger(parameters.get('tipo')),
     createdFrom: parameters.get('desde') ?? undefined,
     createdTo: parameters.get('hasta') ?? undefined,
     onlyOverdue: parameters.get('vencidas') === 'true',
-    sortBy: includesValue<ServiceRequestSortField>(SERVICE_REQUEST_SORT_FIELDS, sortBy) ? sortBy : DEFAULT_SORT_FIELD,
-    sortDirection: includesValue<SortDirection>(SORT_DIRECTIONS, sortDirection)
-      ? sortDirection
-      : DEFAULT_SORT_DIRECTION,
-    page: optionalNumber(parameters.get('pagina')) ?? FIRST_PAGE,
-    pageSize: optionalNumber(parameters.get('filas')) ?? DEFAULT_PAGE_SIZE,
+    sortBy: readOption(SERVICE_REQUEST_SORT_FIELDS, parameters.get(SORT_FIELD_PARAMETER)) ?? DEFAULT_SORT_FIELD,
+    sortDirection: readOption(SORT_DIRECTIONS, parameters.get(SORT_DIRECTION_PARAMETER)) ?? DEFAULT_SORT_DIRECTION,
   };
 }
 
 export function ServiceRequestListPage() {
   const { user } = useAuth();
-  const [searchParameters, setSearchParameters] = useSearchParams();
-  const query = useMemo(() => readQuery(searchParameters), [searchParameters]);
-  const [searchText, setSearchText] = useState(query.search ?? '');
-  const debouncedSearch = useDebouncedValue(searchText.trim());
+  const listParameters = useListSearchParameters(SORT_PARAMETERS);
+  const { searchParameters, page, pageSize, activeFilterCount, updateParameters } = listParameters;
+  const query = useMemo<ServiceRequestQuery>(
+    () => ({ ...readFilters(searchParameters), page, pageSize }),
+    [searchParameters, page, pageSize],
+  );
+  const [searchText, setSearchText] = useSearchText(query.search ?? '', updateParameters);
   const areas = useAreas();
   const requestTypes = useRequestTypes();
-
-  const updateParameters = (changes: Record<string, string | undefined>, resetPage = true) => {
-    setSearchParameters(
-      (current) => {
-        const next = new URLSearchParams(current);
-        Object.entries(changes).forEach(([name, value]) => {
-          if (value) {
-            next.set(name, value);
-          } else {
-            next.delete(name);
-          }
-        });
-        if (resetPage) {
-          next.delete('pagina');
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
-
-  useEffect(() => {
-    if ((query.search ?? '') !== debouncedSearch) {
-      updateParameters({ buscar: debouncedSearch });
-    }
-    // Solo debe reaccionar al texto ya estabilizado por el debounce.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
 
   const serviceRequests = useQuery({
     queryKey: QUERY_KEYS.serviceRequestList(query),
     queryFn: () => serviceRequestService.list(query),
     placeholderData: keepPreviousData,
   });
+  useClampedPage(serviceRequests.data, listParameters.setPage);
 
-  const activeFilterCount = [...searchParameters.keys()].filter((key) => !NON_FILTER_PARAMETERS.includes(key)).length;
   const hasFilters = activeFilterCount > 0;
-
-  const clearFilters = () => {
-    setSearchText('');
-    setSearchParameters(new URLSearchParams(), { replace: true });
-  };
+  const clearFilters = () => listParameters.clearFilters(SORT_PARAMETERS);
 
   return (
     <Card
@@ -231,7 +184,7 @@ export function ServiceRequestListPage() {
           <select
             className="select"
             value={query.sortBy}
-            onChange={(event) => updateParameters({ orden: event.target.value })}
+            onChange={(event) => updateParameters({ [SORT_FIELD_PARAMETER]: event.target.value })}
           >
             {SERVICE_REQUEST_SORT_FIELDS.map((field) => (
               <option key={field} value={field}>
@@ -245,7 +198,7 @@ export function ServiceRequestListPage() {
           <select
             className="select"
             value={query.sortDirection}
-            onChange={(event) => updateParameters({ direccion: event.target.value })}
+            onChange={(event) => updateParameters({ [SORT_DIRECTION_PARAMETER]: event.target.value })}
           >
             {SORT_DIRECTIONS.map((direction) => (
               <option key={direction} value={direction}>
@@ -277,6 +230,13 @@ export function ServiceRequestListPage() {
         <EmptyState
           title="No se encontraron solicitudes"
           description={hasFilters ? 'Ajuste o limpie los filtros para ver más resultados.' : undefined}
+          action={
+            hasFilters ? undefined : (
+              <Link className="button button--primary" to={ROUTES.newServiceRequest}>
+                Crear solicitud
+              </Link>
+            )
+          }
         />
       )}
       {serviceRequests.data && serviceRequests.data.items.length > 0 && (
@@ -290,8 +250,8 @@ export function ServiceRequestListPage() {
             pageSize={serviceRequests.data.pageSize}
             totalCount={serviceRequests.data.totalCount}
             totalPages={serviceRequests.data.totalPages}
-            onPageChange={(page) => updateParameters({ pagina: String(page) }, false)}
-            onPageSizeChange={(pageSize) => updateParameters({ filas: String(pageSize) })}
+            onPageChange={listParameters.setPage}
+            onPageSizeChange={listParameters.setPageSize}
           />
         </>
       )}

@@ -2,13 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Card } from '../components/Card';
 import { FormField } from '../components/FormField';
 import { SourceSelector } from '../components/SourceSelector';
 import { Alert, ErrorState, LoadingState } from '../components/States';
 import { PLACEHOLDER_SOURCE, SOURCE_PARAMETER, useGovernmentEntitySource } from '../hooks/useGovernmentEntitySource';
 import { useToast } from '../hooks/useToast';
+import type { ListReturnState } from '../hooks/useListSearchParameters';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { ROUTES } from '../layout/routes';
 import { GOVERNMENT_ENTITY_SCHEMA } from '../schemas/governmentEntitySchemas';
 import type { GovernmentEntityFormValues } from '../schemas/governmentEntitySchemas';
@@ -38,6 +40,7 @@ export function GovernmentEntityFormPage() {
   const entityId = id ? Number(id) : undefined;
   const isEditing = entityId !== undefined;
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const sourceSelection = useGovernmentEntitySource();
@@ -64,7 +67,7 @@ export function GovernmentEntityFormPage() {
     handleSubmit,
     reset,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<GovernmentEntityFormValues>({
     resolver: zodResolver(GOVERNMENT_ENTITY_SCHEMA),
     defaultValues: EMPTY_ENTITY,
@@ -77,8 +80,11 @@ export function GovernmentEntityFormPage() {
     }
   }, [existing.data, reset]);
 
+  const listSearch =
+    (location.state as ListReturnState | null)?.listSearch ?? (source ? `${SOURCE_PARAMETER}=${source}` : '');
   const backToList = () =>
-    navigate(source ? `${ROUTES.governmentEntities}?${SOURCE_PARAMETER}=${source}` : ROUTES.governmentEntities);
+    navigate(listSearch ? `${ROUTES.governmentEntities}?${listSearch}` : ROUTES.governmentEntities);
+  const { prompt } = useUnsavedChangesGuard(isDirty, isSubmitting, backToList);
 
   const submit = async (values: GovernmentEntityFormValues) => {
     if (!source) {
@@ -197,6 +203,7 @@ export function GovernmentEntityFormPage() {
             </button>
           </div>
         </form>
+        {prompt}
       </div>
     </Card>
   );

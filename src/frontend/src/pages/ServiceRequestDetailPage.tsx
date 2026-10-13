@@ -11,12 +11,13 @@ import { ServiceRequestManagementPanel } from '../components/ServiceRequestManag
 import { ErrorState, LoadingState } from '../components/States';
 import { StatusHistoryTimeline } from '../components/StatusHistoryTimeline';
 import { useAuth } from '../hooks/useAuth';
+import { useConcurrencyRecovery } from '../hooks/useConcurrencyRecovery';
 import { useToast } from '../hooks/useToast';
 import { ROUTES } from '../layout/routes';
 import type { ServiceRequestFormValues } from '../schemas/serviceRequestSchemas';
 import { QUERY_KEYS } from '../services/queryKeys';
 import { serviceRequestService } from '../services/serviceRequestService';
-import type { ServiceRequestDetailResponse } from '../types/api';
+import type { ServiceRequestDetailResponse, UpdateServiceRequestRequest } from '../types/api';
 import { buildPartialUpdate } from '../utils/partialUpdate';
 import { formatDateTime } from '../utils/formatting';
 
@@ -51,6 +52,7 @@ export function ServiceRequestDetailPage() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
+  const recoverFromConflict = useConcurrencyRecovery(id);
   const detail = useQuery({
     queryKey: QUERY_KEYS.serviceRequestDetail(id),
     queryFn: () => serviceRequestService.detail(id),
@@ -82,10 +84,17 @@ export function ServiceRequestDetailPage() {
   const saveChanges = async (values: ServiceRequestFormValues) => {
     const changes = buildPartialUpdate(originalValues, values);
     if (Object.keys(changes).length > 0) {
-      await serviceRequestService.update(serviceRequest.id, changes);
+      const request: UpdateServiceRequestRequest = { ...changes, version: serviceRequest.version };
+      try {
+        await serviceRequestService.update(serviceRequest.id, request);
+      } catch (error) {
+        await recoverFromConflict(error);
+        throw error;
+      }
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.serviceRequestDetail(serviceRequest.id) }),
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.serviceRequests }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard }),
       ]);
       showToast('Solicitud actualizada.');
     }

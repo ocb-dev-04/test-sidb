@@ -61,7 +61,7 @@ internal sealed class GovernmentEntitiesInitializer(
         IReadOnlyList<GovernmentEntity> excelEntities = await services
             .GetRequiredKeyedService<IGovernmentEntityReader>(GovernmentEntityDataSource.Excel)
             .GetAllAsync(cancellationToken);
-        if (excelEntities.Count == 0)
+        if (!excelEntities.Any())
         {
             InfrastructureLogMessages.GovernmentEntitiesInitializationSkipped(logger, "Excel source file is missing or empty");
             return;
@@ -73,7 +73,7 @@ internal sealed class GovernmentEntitiesInitializer(
             IReadOnlyList<GovernmentEntity> current = await services
                 .GetRequiredKeyedService<IGovernmentEntityReader>(source)
                 .GetAllAsync(cancellationToken);
-            if (current.Count > 0)
+            if (current.Any())
             {
                 continue;
             }

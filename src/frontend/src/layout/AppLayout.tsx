@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Outlet, useMatches } from 'react-router-dom';
 import { LogoutIcon, MenuIcon } from '../components/Icons';
 import { NotificationBell } from '../components/NotificationBell';
+import { LoadingState } from '../components/States';
 import { useAuth } from '../hooks/useAuth';
 import { roleLabel } from '../utils/labels';
 import type { RouteHandle } from './routes';
-import { Sidebar } from './Sidebar';
+import { SIDEBAR_ID, Sidebar } from './Sidebar';
 
 const DEFAULT_PAGE_TITLE = 'Gestión de solicitudes';
 
@@ -18,7 +19,24 @@ function usePageTitle(): string {
 export function AppLayout() {
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const menuToggleReference = useRef<HTMLButtonElement>(null);
   const pageTitle = usePageTitle();
+
+  // En pantallas angostas el menú es un panel: el foco entra al abrirlo y Escape lo cierra devolviendo el foco.
+  useEffect(() => {
+    if (!isSidebarOpen) {
+      return;
+    }
+    document.getElementById(SIDEBAR_ID)?.querySelector<HTMLElement>('a[href]')?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSidebarOpen(false);
+        menuToggleReference.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [isSidebarOpen]);
 
   useEffect(() => {
     document.title = `${pageTitle} | Superintendencia de Bancos`;
@@ -35,10 +53,11 @@ export function AppLayout() {
       <div className="main-column">
         <header className="top-header">
           <button
+            ref={menuToggleReference}
             type="button"
             className="icon-button menu-toggle"
             aria-label="Abrir menú"
-            aria-controls="main-sidebar"
+            aria-controls={SIDEBAR_ID}
             aria-expanded={isSidebarOpen}
             onClick={() => setIsSidebarOpen((current) => !current)}
           >
@@ -58,7 +77,7 @@ export function AppLayout() {
               className="icon-button"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
-              onClick={logout}
+              onClick={() => logout()}
             >
               <LogoutIcon />
             </button>
@@ -66,7 +85,9 @@ export function AppLayout() {
         </header>
         <main className="content-area">
           <div className="content-stack">
-            <Outlet />
+            <Suspense fallback={<LoadingState message="Cargando pantalla…" />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

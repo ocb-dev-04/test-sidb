@@ -31,7 +31,7 @@ internal sealed class ServiceRequestConfiguration : IEntityTypeConfiguration<Ser
         builder.Property(serviceRequest => serviceRequest.ResolvedOnUtc).HasColumnName("FechaResolucion");
         builder.Property(serviceRequest => serviceRequest.ClosedOnUtc).HasColumnName("FechaCierre");
         builder.Property(serviceRequest => serviceRequest.ResolutionComment).HasColumnName("ComentarioResolucion").HasMaxLength(ServiceRequest.TRANSITION_COMMENT_MAXIMUM_LENGTH);
-        builder.Property<byte[]>(ROW_VERSION_PROPERTY).HasColumnName("VersionFila").IsRowVersion();
+        builder.Property<byte[]>(ROW_VERSION_PROPERTY).HasColumnName("VersionFila").IsRowVersion().IsRequired();
 
         builder.HasOne(serviceRequest => serviceRequest.RequestType).WithMany().HasForeignKey(serviceRequest => serviceRequest.RequestTypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(serviceRequest => serviceRequest.Area).WithMany().HasForeignKey(serviceRequest => serviceRequest.AreaId).OnDelete(DeleteBehavior.Restrict);

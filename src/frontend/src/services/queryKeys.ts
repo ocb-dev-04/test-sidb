@@ -13,7 +13,7 @@ export const QUERY_KEYS = {
   userList: (query: UserQuery) => ['users', 'list', query] as const,
   notifications: ['notifications'] as const,
   unreadNotifications: ['notifications', 'unread-count'] as const,
-  notificationList: (page: number) => ['notifications', 'list', page] as const,
+  notificationList: ['notifications', 'list'] as const,
   governmentEntitySources: ['government-entities', 'sources'] as const,
   governmentEntities: ['government-entities'] as const,
   governmentEntityFilterValues: (source: GovernmentEntityDataSource) =>

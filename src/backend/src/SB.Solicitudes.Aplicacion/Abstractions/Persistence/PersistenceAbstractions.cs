@@ -14,6 +14,8 @@ public interface IServiceRequestRepository
 {
     Task<ServiceRequest?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
+    bool HasVersion(ServiceRequest serviceRequest, byte[] version);
+
     void Add(ServiceRequest serviceRequest);
 }
 
@@ -60,6 +62,8 @@ public interface IRequestTypeRepository
 public interface INotificationRepository
 {
     Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Notification>> GetUnreadInAppForRecipientAsync(Guid recipientUserId, CancellationToken cancellationToken);
 
     void AddRange(IEnumerable<Notification> notifications);
 }

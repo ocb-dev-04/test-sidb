@@ -9,6 +9,7 @@ import { FormField } from '../components/FormField';
 import { Alert, EmptyState, ErrorState, LoadingState } from '../components/States';
 import { useAreas, useRequestTypes } from '../hooks/useCatalogs';
 import { useToast } from '../hooks/useToast';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { CATALOG_ITEM_SCHEMA } from '../schemas/catalogSchemas';
 import type { CatalogItemFormValues } from '../schemas/catalogSchemas';
 import { CATALOG_NAME_MAXIMUM_LENGTH, REQUEST_TYPE_DESCRIPTION_MAXIMUM_LENGTH } from '../schemas/validationLimits';
@@ -52,11 +53,12 @@ function CatalogItemForm({ kind, item, onSubmit, onCancel }: CatalogItemFormProp
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<CatalogItemFormValues>({
     resolver: zodResolver(CATALOG_ITEM_SCHEMA),
     defaultValues: { name: item?.name ?? '', description: item?.description ?? '', isActive: item?.isActive ?? true },
   });
+  const { cancel } = useUnsavedChangesGuard(isDirty, isSubmitting, onCancel);
 
   const submit = async (values: CatalogItemFormValues) => {
     setSubmitError(null);
@@ -91,7 +93,7 @@ function CatalogItemForm({ kind, item, onSubmit, onCancel }: CatalogItemFormProp
         </label>
       )}
       <div className="form-actions">
-        <button type="button" className="button button--secondary" onClick={onCancel} disabled={isSubmitting}>
+        <button type="button" className="button button--secondary" onClick={cancel} disabled={isSubmitting}>
           Cancelar
         </button>
         <button type="submit" className="button button--primary" disabled={isSubmitting}>

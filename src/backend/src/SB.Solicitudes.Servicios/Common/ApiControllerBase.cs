@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SB.Solicitudes.Dominio.Common;
 
 namespace SB.Solicitudes.Servicios.Common;
@@ -31,11 +32,21 @@ public abstract class ApiControllerBase(ISender sender) : ControllerBase
     {
         if (error is ValidationError validationError)
         {
-            ValidationProblemDetails validationDetails = new(validationError.Errors.ToDictionary(pair => pair.Key, pair => pair.Value))
+            ModelStateDictionary modelState = new();
+            foreach ((string field, string[] messages) in validationError.Errors)
             {
-                Title = validationError.Description,
-                Status = StatusCodes.Status400BadRequest,
-            };
+                foreach (string message in messages)
+                {
+                    modelState.AddModelError(field, message);
+                }
+            }
+
+            // La fábrica aplica CustomizeProblemDetails: así la respuesta lleva el traceId como el resto de errores.
+            ValidationProblemDetails validationDetails = ProblemDetailsFactory.CreateValidationProblemDetails(
+                HttpContext,
+                modelState,
+                StatusCodes.Status400BadRequest,
+                validationError.Description);
             validationDetails.Extensions[ERROR_CODE_EXTENSION] = validationError.Code;
             return ValidationProblem(validationDetails);
         }

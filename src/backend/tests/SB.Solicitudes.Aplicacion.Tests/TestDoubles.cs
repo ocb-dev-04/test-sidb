@@ -27,6 +27,8 @@ internal static class TestData
     public const int AREA_ID = 1;
     public const int REQUEST_TYPE_ID = 1;
 
+    public static readonly byte[] ROW_VERSION = [0, 0, 0, 0, 0, 0, 7, 209];
+
     public static readonly DateTime UTC_NOW = new(2026, 10, 10, 12, 0, 0, DateTimeKind.Utc);
     public static readonly Guid REQUESTER_ID = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid ANALYST_ID = Guid.Parse("22222222-2222-2222-2222-222222222222");

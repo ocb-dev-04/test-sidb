@@ -23,11 +23,11 @@ jobs:
       run:
         working-directory: src/backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ hashFiles('src/backend/Directory.Packages.props') }}
@@ -43,7 +43,7 @@ jobs:
           --logger trx --results-directory TestResults/integration
       - name: Publica los resultados de las pruebas
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-results
           path: src/backend/TestResults
@@ -57,8 +57,8 @@ jobs:
       run:
         working-directory: src/frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -71,7 +71,7 @@ jobs:
       - run: npm run build
       - name: Publica los resultados de las pruebas
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-test-results
           path: src/frontend/test-results
@@ -90,9 +90,10 @@ jobs:
       DEMO_PASSWORD: Demo2026*
       MAXIMUM_ATTEMPTS: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Construye y levanta SQL Server, API y frontend
-        run: docker compose up --build -d
+        # docker-compose.e2e.yml solo sube el límite de intentos de login para la suite de Playwright.
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build -d
       - name: Espera a que la API esté sana
         run: |
           for attempt in $(seq 1 "$MAXIMUM_ATTEMPTS"); do
@@ -111,10 +112,32 @@ jobs:
             -H "Authorization: Bearer $token" | jq '.totalCount')
           [ "$entities" -gt 0 ] || { echo "Sin entidades gubernamentales"; exit 1; }
           curl -fsS "$WEB_URL/" > /dev/null
+          proxied_status=$(curl -s -o /dev/null -w '%{http_code}' "$WEB_URL/api/notificaciones/no-leidas/total")
+          [ "$proxied_status" = "401" ] || { echo "El proxy /api del frontend no llega a la API ($proxied_status)"; exit 1; }
           curl -fsSL "$DEVELOPMENT_API_URL/scalar" > /dev/null
           production_status=$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/scalar")
           [ "$production_status" != "200" ] || { echo "Producción no debe exponer Scalar"; exit 1; }
-          echo "Login correcto, $entities entidades, frontend disponible, Scalar solo en desarrollo"
+          echo "Login correcto, $entities entidades, frontend y proxy /api disponibles, Scalar solo en desarrollo"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - name: Pruebas e2e (Playwright) contra el stack
+        working-directory: src/frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run e2e
+      - name: Publica el reporte y los vídeos e2e
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-report
+          path: |
+            src/frontend/e2e-report
+            src/frontend/e2e-results
+          if-no-files-found: ignore
       - name: Verifica que ningún contenedor corra como root
         run: |
           for service in sqlserver api api-dev frontend; do

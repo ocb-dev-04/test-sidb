@@ -30,13 +30,11 @@ public sealed class Comment : Entity<Guid>
 
     internal static Comment Create(Guid serviceRequestId, Guid authorId, string text, CommentVisibility visibility, DateTime utcNow)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(text);
-
         return new Comment(Guid.NewGuid())
         {
             ServiceRequestId = serviceRequestId,
             AuthorId = authorId,
-            Text = text.Trim(),
+            Text = DomainGuard.RequiredText(text, TEXT_MAXIMUM_LENGTH),
             Visibility = visibility,
             CreatedOnUtc = utcNow,
         };

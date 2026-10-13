@@ -4,6 +4,8 @@ import logo from '../assets/SUPERINTENDENCIA_DE_BANCOS.png';
 import type { UserRole } from '../types/api';
 import { isNavigationItemActive, visibleSections } from './navigation';
 
+export const SIDEBAR_ID = 'main-sidebar';
+
 interface SidebarProps {
   role: UserRole | undefined;
   isOpen: boolean;
@@ -14,7 +16,7 @@ export function Sidebar({ role, isOpen, onNavigate }: SidebarProps) {
   const { pathname } = useLocation();
 
   return (
-    <aside id="main-sidebar" className={`sidebar ${isOpen ? 'sidebar--open' : ''}`.trim()}>
+    <aside id={SIDEBAR_ID} className={`sidebar ${isOpen ? 'sidebar--open' : ''}`.trim()}>
       <img className="sidebar__logo" src={logo} alt="Superintendencia de Bancos - República Dominicana" />
       <nav aria-label="Menú principal">
         {visibleSections(role).map((section) => (

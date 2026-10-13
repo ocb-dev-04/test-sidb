@@ -19,17 +19,18 @@ public sealed class RequestType : Entity<int>
 
     public static RequestType Create(string name, string description)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        return new RequestType { Name = name.Trim(), Description = description.Trim(), IsActive = true };
+        return new RequestType
+        {
+            Name = DomainGuard.RequiredText(name, NAME_MAXIMUM_LENGTH),
+            Description = DomainGuard.BoundedText(description, DESCRIPTION_MAXIMUM_LENGTH),
+            IsActive = true,
+        };
     }
 
     public void Update(string name, string description, bool isActive)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        Name = name.Trim();
-        Description = description.Trim();
+        Name = DomainGuard.RequiredText(name, NAME_MAXIMUM_LENGTH);
+        Description = DomainGuard.BoundedText(description, DESCRIPTION_MAXIMUM_LENGTH);
         IsActive = isActive;
     }
 }

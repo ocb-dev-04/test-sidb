@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import type { ReactElement } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { ToastProvider } from '../components/ToastProvider';
 import { AuthContext } from '../context/authContext';
 import type { AuthContextValue } from '../context/authContext';
@@ -19,10 +19,14 @@ export function buildUser(role: UserRole, overrides: Partial<UserResponse> = {})
   };
 }
 
+type InitialEntry = NonNullable<NonNullable<Parameters<typeof createMemoryRouter>[1]>['initialEntries']>[number];
+
 interface RenderOptions {
   user?: UserResponse | null;
   login?: AuthContextValue['login'];
-  route?: string;
+  route?: InitialEntry;
+  sessionExpired?: boolean;
+  path?: string;
 }
 
 export function renderWithProviders(element: ReactElement, options: RenderOptions = {}) {
@@ -33,15 +37,20 @@ export function renderWithProviders(element: ReactElement, options: RenderOption
     isAuthenticated: user !== null,
     login: options.login ?? (async () => user as UserResponse),
     logout: () => undefined,
+    sessionExpired: options.sessionExpired ?? false,
   };
+
+  // Router de datos, como en la aplicación: useBlocker no funciona con MemoryRouter.
+  const router = createMemoryRouter([{ path: options.path ?? '*', element }], {
+    initialEntries: [route],
+    future: { v7_relativeSplatPath: true },
+  });
 
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={authValue}>
         <ToastProvider>
-          <MemoryRouter initialEntries={[route]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            {element}
-          </MemoryRouter>
+          <RouterProvider router={router} future={{ v7_startTransition: true }} />
         </ToastProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,

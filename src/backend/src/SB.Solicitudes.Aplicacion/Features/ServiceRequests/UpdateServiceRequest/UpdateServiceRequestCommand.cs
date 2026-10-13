@@ -12,6 +12,7 @@ namespace SB.Solicitudes.Aplicacion.Features.ServiceRequests.UpdateServiceReques
 
 public sealed record UpdateServiceRequestCommand(
     Guid ServiceRequestId,
+    byte[] Version,
     string? Title,
     string? Description,
     ServiceRequestPriority? Priority,
@@ -23,6 +24,7 @@ internal sealed class UpdateServiceRequestCommandValidator : AbstractValidator<U
 {
     public UpdateServiceRequestCommandValidator()
     {
+        RuleFor(command => command.Version).NotEmpty();
         RuleFor(command => command.Title)
             .Must(title => title is null || !string.IsNullOrWhiteSpace(title))
             .WithMessage("Title cannot be blank.")
@@ -63,6 +65,11 @@ internal sealed class UpdateServiceRequestCommandHandler(
         if (!visibility.CanManage && !isRequesterEditingOwnRegistered)
         {
             return ServiceRequestErrors.EDIT_NOT_ALLOWED;
+        }
+
+        if (!serviceRequestRepository.HasVersion(serviceRequest, request.Version))
+        {
+            return ServiceRequestErrors.CONCURRENCY_CONFLICT;
         }
 
         Result catalogsResult = await CatalogGuards.EnsureActiveAsync(

@@ -16,7 +16,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerabl
         CancellationToken cancellationToken)
     {
         IValidator<TRequest>[] requestValidators = validators.ToArray();
-        if (requestValidators.Length == 0)
+        if (!requestValidators.Any())
         {
             return await next(cancellationToken);
         }
@@ -29,7 +29,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerabl
             failures.AddRange(validationResult.Errors);
         }
 
-        if (failures.Count == 0)
+        if (!failures.Any())
         {
             return await next(cancellationToken);
         }

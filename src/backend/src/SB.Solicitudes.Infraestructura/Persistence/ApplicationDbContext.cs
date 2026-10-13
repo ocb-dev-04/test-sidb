@@ -48,6 +48,7 @@ public sealed class ApplicationDbContext(
             type => type.Namespace == typeof(ServiceRequestConfiguration).Namespace);
 
         modelBuilder.IgnoreDomainEvents();
+        modelBuilder.StoreEnumsAsAsciiText();
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -69,7 +70,7 @@ public sealed class ApplicationDbContext(
                 })
                 .ToArray();
 
-            if (domainEvents.Length == 0)
+            if (!domainEvents.Any())
             {
                 return;
             }

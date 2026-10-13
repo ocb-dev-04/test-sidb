@@ -29,7 +29,7 @@ docker compose up --build
 | Servicio | URL |
 |---|---|
 | Aplicación web | http://localhost:8080 |
-| API de producción (la usa el frontend) | http://localhost:5080 |
+| API de producción (la usa el frontend a través de su proxy `/api`) | http://localhost:5080 |
 | API de desarrollo con Scalar | http://localhost:5081/scalar (Swagger UI en http://localhost:5081/swagger) |
 | Salud de la API | http://localhost:5080/health |
 | SQL Server | `localhost,1433` (usuario `sa`, clave en `.env.example`) |
@@ -223,12 +223,13 @@ npm test
 
 | Proyecto | Pruebas | Qué cubre |
 |---|---|---|
-| `Dominio.Tests` | 52 | Tabla de transiciones, comentario obligatorio, reapertura por rol, asignación, vencimiento, código, Result, reintentos de notificación |
-| `Aplicacion.Tests` | 23 | Pipeline de validación, handlers con dobles, visibilidad SQL vs memoria, destinatarios de notificaciones, búsqueda e importación de entidades |
+| `Dominio.Tests` | 63 | Longitudes máximas de las entidades (`DomainGuard`), tabla de transiciones, comentario obligatorio, reapertura por rol, asignación, vencimiento, código, Result, reintentos de notificación |
+| `Aplicacion.Tests` | 26 | Pipeline de validación, handlers con dobles (incluida la versión vieja → conflicto), visibilidad SQL vs memoria, destinatarios de notificaciones, marcar todas como leídas, búsqueda e importación de entidades |
 | `Infraestructura.Tests` | 14 | Archivo de texto (comillas y separadores, archivo editado a mano, concurrencia), SQLite con migraciones, lectura del Excel real, factory, hasher de claves, JWT, enmascarado de correos |
 | `ArchitectureTests` | 12 | Dependencias entre capas y convenciones de nombres de la especificación |
-| `Servicios.IntegrationTests` | 17 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
-| Frontend (Vitest) | 39 | Etiquetas, traducción de errores, esquemas zod, permisos por rol en la interfaz, cliente HTTP, login, navegación |
+| `Servicios.IntegrationTests` | 21 | API completa contra SQL Server 2022 en Testcontainers: login, roles, visibilidad, cierre con comentario y notificación, concurrencia optimista (409 con versión vieja), marcar notificaciones como leídas, una notificación por canal, comentar sin invalidar la versión, paginación, tablero, CRUD de entidades en las tres fuentes, carga inicial sin duplicados y creación del `.txt` desde el Excel |
+| E2E (Playwright) | 41 | Flujos reales en el navegador contra el stack de Docker, grabados en vídeo: sesión, filtros en la URL, diálogos y cambios sin guardar, concurrencia entre dos usuarios, notificaciones, usuarios, errores, móvil y cabeceras ([evidencias](docs/evidencias/e2e/README.md)) |
+| Frontend (Vitest + MSW) | 79 | Etiquetas, traducción de errores, esquemas zod, permisos por rol, cliente HTTP, sesión (expiración y 401), login, navegación, diálogos (foco y cambios sin guardar), flujos de alta, edición, cambio de estado, asignación y conflicto de versión, filtros en la URL, entidades, usuarios, notificaciones y página de error |
 
 `scripts/validate.ps1` (o `validate.sh`) ejecuta lo mismo que los jobs de backend y frontend del CI.
 
@@ -242,7 +243,7 @@ demanda (`workflow_dispatch`):
 |---|---|
 | Backend (.NET 8) | Build en Release, pruebas unitarias y de arquitectura, integración contra SQL Server en Testcontainers; publica los `.trx` |
 | Frontend (React + TypeScript) | Lint, typecheck, Vitest (reporte JUnit publicado) y build de producción |
-| Docker (stack completo) | `docker compose up --build`, salud de las APIs de producción y desarrollo, login con usuario demo, datos semilla, frontend disponible, Scalar solo en desarrollo y ningún contenedor como root |
+| Docker (stack completo) | `docker compose up --build` (con `docker-compose.e2e.yml`), salud de las APIs de producción y desarrollo, login con usuario demo, datos semilla, frontend y proxy `/api`, Scalar solo en desarrollo, suite e2e de Playwright (reporte y vídeos como artefacto) y ningún contenedor como root |
 
 Dependabot (`.github/dependabot.yml`) propone cada mes un PR agrupado por ecosistema (NuGet, npm, Actions y
 Docker) solo con parches y versiones menores; las mayores se evalúan a mano (MediatR 13 es comercial).

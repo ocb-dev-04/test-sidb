@@ -51,17 +51,14 @@ public sealed class Notification : Entity<Guid>
         string message,
         DateTime utcNow)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(subject);
-        ArgumentException.ThrowIfNullOrWhiteSpace(message);
-
         return new Notification(Guid.NewGuid())
         {
             RecipientUserId = recipientUserId,
             ServiceRequestId = serviceRequestId,
             Channel = channel,
             Type = type,
-            Subject = subject,
-            Message = message,
+            Subject = DomainGuard.RequiredText(subject, SUBJECT_MAXIMUM_LENGTH),
+            Message = DomainGuard.RequiredText(message, MESSAGE_MAXIMUM_LENGTH),
             Status = NotificationStatus.Pending,
             CreatedOnUtc = utcNow,
         };

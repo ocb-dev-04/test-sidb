@@ -8,4 +8,5 @@ export const notificationService = {
     }),
   unreadCount: () => request<number>('/api/notificaciones/no-leidas/total'),
   markAsRead: (id: string) => request<void>(`/api/notificaciones/${id}/leida`, { method: 'PATCH' }),
+  markAllAsRead: () => request<void>('/api/notificaciones/leidas', { method: 'PATCH' }),
 };

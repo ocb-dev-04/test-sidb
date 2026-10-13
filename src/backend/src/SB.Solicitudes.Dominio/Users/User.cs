@@ -33,15 +33,11 @@ public sealed class User : Entity<Guid>
 
     public static User Create(string fullName, string email, string passwordHash, UserRole role, DateTime utcNow)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(email);
-        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
-
         return new User(Guid.NewGuid())
         {
-            FullName = fullName.Trim(),
-            Email = NormalizeEmail(email),
-            PasswordHash = passwordHash,
+            FullName = DomainGuard.RequiredText(fullName, FULL_NAME_MAXIMUM_LENGTH),
+            Email = NormalizeEmail(DomainGuard.RequiredText(email, EMAIL_MAXIMUM_LENGTH)),
+            PasswordHash = DomainGuard.RequiredText(passwordHash, PASSWORD_HASH_MAXIMUM_LENGTH),
             Role = role,
             IsActive = true,
             CreatedOnUtc = utcNow,
@@ -52,17 +48,13 @@ public sealed class User : Entity<Guid>
 
     public void Update(string fullName, UserRole role, bool isActive)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
-
-        FullName = fullName.Trim();
+        FullName = DomainGuard.RequiredText(fullName, FULL_NAME_MAXIMUM_LENGTH);
         Role = role;
         IsActive = isActive;
     }
 
     public void ChangePasswordHash(string passwordHash)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
-
-        PasswordHash = passwordHash;
+        PasswordHash = DomainGuard.RequiredText(passwordHash, PASSWORD_HASH_MAXIMUM_LENGTH);
     }
 }

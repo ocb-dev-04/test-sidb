@@ -8,37 +8,40 @@ import { Pagination } from '../components/Pagination';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { CreateUserForm, UpdateUserForm } from '../components/UserForms';
 import { useAuth } from '../hooks/useAuth';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useClampedPage } from '../hooks/useClampedPage';
+import { SEARCH_PARAMETER, readOption, useListSearchParameters, useSearchText } from '../hooks/useListSearchParameters';
 import { useToast } from '../hooks/useToast';
 import type { CreateUserFormValues, UpdateUserFormValues } from '../schemas/userSchemas';
 import { SEARCH_MAXIMUM_LENGTH } from '../schemas/validationLimits';
 import { QUERY_KEYS } from '../services/queryKeys';
 import { userService } from '../services/userService';
 import { USER_ROLES } from '../types/api';
-import type { UserResponse, UserRole } from '../types/api';
+import type { UserResponse } from '../types/api';
 import { formatDate } from '../utils/formatting';
 import { ROLE_LABELS, roleLabel } from '../utils/labels';
-import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../utils/pagination';
 
-const ACTIVE_FILTER_VALUES = { all: '', active: 'true', inactive: 'false' } as const;
+const ACTIVE_FILTER_VALUES = { all: '', active: 'activos', inactive: 'inactivos' } as const;
+const ROLE_PARAMETER = 'rol';
+const ACTIVE_PARAMETER = 'estado';
+const ACTIVE_FILTER_OPTIONS = [ACTIVE_FILTER_VALUES.active, ACTIVE_FILTER_VALUES.inactive] as const;
 
 export function UsersPage() {
   const { user: currentUser } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const [searchText, setSearchText] = useState('');
-  const debouncedSearch = useDebouncedValue(searchText.trim());
-  const [role, setRole] = useState<UserRole | ''>('');
-  const [activeFilter, setActiveFilter] = useState<string>(ACTIVE_FILTER_VALUES.all);
-  const [page, setPage] = useState<number>(FIRST_PAGE);
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const listParameters = useListSearchParameters();
+  const { searchParameters, page, pageSize, activeFilterCount, updateParameters } = listParameters;
+  const search = searchParameters.get(SEARCH_PARAMETER) ?? '';
+  const role = readOption(USER_ROLES, searchParameters.get(ROLE_PARAMETER));
+  const activeFilter = readOption(ACTIVE_FILTER_OPTIONS, searchParameters.get(ACTIVE_PARAMETER));
+  const [searchText, setSearchText] = useSearchText(search, updateParameters);
   const [isCreating, setIsCreating] = useState(false);
   const [userToEdit, setUserToEdit] = useState<UserResponse | null>(null);
 
   const query = {
-    search: debouncedSearch,
-    role: role || undefined,
-    isActive: activeFilter === ACTIVE_FILTER_VALUES.all ? undefined : activeFilter === ACTIVE_FILTER_VALUES.active,
+    search,
+    role,
+    isActive: activeFilter === undefined ? undefined : activeFilter === ACTIVE_FILTER_VALUES.active,
     page,
     pageSize,
   };
@@ -47,6 +50,7 @@ export function UsersPage() {
     queryFn: () => userService.list(query),
     placeholderData: keepPreviousData,
   });
+  useClampedPage(users.data, listParameters.setPage);
 
   const refreshUsers = () =>
     Promise.all([
@@ -81,10 +85,7 @@ export function UsersPage() {
         </button>
       }
     >
-      <FilterPanel
-        label="Filtros de usuarios"
-        activeFilterCount={[searchText, role, activeFilter].filter(Boolean).length}
-      >
+      <FilterPanel label="Filtros de usuarios" activeFilterCount={activeFilterCount}>
         <label className="field filters__search">
           <span className="field__label">Buscar</span>
           <input
@@ -93,21 +94,15 @@ export function UsersPage() {
             placeholder="Nombre o correo"
             maxLength={SEARCH_MAXIMUM_LENGTH}
             value={searchText}
-            onChange={(event) => {
-              setSearchText(event.target.value);
-              setPage(FIRST_PAGE);
-            }}
+            onChange={(event) => setSearchText(event.target.value)}
           />
         </label>
         <label className="field">
           <span className="field__label">Rol</span>
           <select
             className="select"
-            value={role}
-            onChange={(event) => {
-              setRole(event.target.value as UserRole | '');
-              setPage(FIRST_PAGE);
-            }}
+            value={role ?? ''}
+            onChange={(event) => updateParameters({ [ROLE_PARAMETER]: event.target.value })}
           >
             <option value="">Todos</option>
             {USER_ROLES.map((roleOption) => (
@@ -121,17 +116,24 @@ export function UsersPage() {
           <span className="field__label">Estado</span>
           <select
             className="select"
-            value={activeFilter}
-            onChange={(event) => {
-              setActiveFilter(event.target.value);
-              setPage(FIRST_PAGE);
-            }}
+            value={activeFilter ?? ACTIVE_FILTER_VALUES.all}
+            onChange={(event) => updateParameters({ [ACTIVE_PARAMETER]: event.target.value })}
           >
             <option value={ACTIVE_FILTER_VALUES.all}>Todos</option>
             <option value={ACTIVE_FILTER_VALUES.active}>Activos</option>
             <option value={ACTIVE_FILTER_VALUES.inactive}>Inactivos</option>
           </select>
         </label>
+        <div className="filters__actions">
+          <button
+            type="button"
+            className="button button--ghost"
+            onClick={() => listParameters.clearFilters()}
+            disabled={activeFilterCount === 0}
+          >
+            Limpiar filtros
+          </button>
+        </div>
       </FilterPanel>
 
       {users.isPending && <LoadingState message="Cargando usuarios…" />}
@@ -188,11 +190,8 @@ export function UsersPage() {
             pageSize={users.data.pageSize}
             totalCount={users.data.totalCount}
             totalPages={users.data.totalPages}
-            onPageChange={setPage}
-            onPageSizeChange={(newPageSize) => {
-              setPageSize(newPageSize);
-              setPage(FIRST_PAGE);
-            }}
+            onPageChange={listParameters.setPage}
+            onPageSizeChange={listParameters.setPageSize}
           />
         </>
       )}

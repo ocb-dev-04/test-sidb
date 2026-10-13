@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { canManageServiceRequests, transitionRequiresComment } from '../auth/permissions';
+import { useConcurrencyRecovery } from '../hooks/useConcurrencyRecovery';
 import { useToast } from '../hooks/useToast';
 import { createChangeStatusSchema } from '../schemas/serviceRequestSchemas';
 import type { ChangeStatusFormValues } from '../schemas/serviceRequestSchemas';
@@ -34,6 +35,7 @@ function useRefreshServiceRequest(serviceRequestId: string) {
 function ChangeStatusForm({ serviceRequest }: PanelProps) {
   const { showToast } = useToast();
   const refresh = useRefreshServiceRequest(serviceRequest.id);
+  const recoverFromConflict = useConcurrencyRecovery(serviceRequest.id);
   const schema = useMemo(() => createChangeStatusSchema(serviceRequest.status), [serviceRequest.status]);
   const firstTransition = serviceRequest.allowedTransitions[0];
   const {
@@ -51,6 +53,7 @@ function ChangeStatusForm({ serviceRequest }: PanelProps) {
   const changeStatus = useMutation({
     mutationFn: (values: ChangeStatusFormValues) =>
       serviceRequestService.changeStatus(serviceRequest.id, {
+        version: serviceRequest.version,
         newStatus: values.newStatus,
         comment: values.comment || null,
       }),
@@ -58,6 +61,7 @@ function ChangeStatusForm({ serviceRequest }: PanelProps) {
       showToast(`Estado actualizado a "${statusLabel(values.newStatus)}".`);
       await refresh();
     },
+    onError: recoverFromConflict,
   });
 
   if (serviceRequest.allowedTransitions.length === 0) {
@@ -99,15 +103,17 @@ function ChangeStatusForm({ serviceRequest }: PanelProps) {
 function AssignmentForm({ serviceRequest }: PanelProps) {
   const { showToast } = useToast();
   const refresh = useRefreshServiceRequest(serviceRequest.id);
+  const recoverFromConflict = useConcurrencyRecovery(serviceRequest.id);
   const [assigneeId, setAssigneeId] = useState(serviceRequest.assigneeId ?? '');
   const assignees = useQuery({ queryKey: QUERY_KEYS.assignees, queryFn: userService.assignees });
 
   const assign = useMutation({
-    mutationFn: () => serviceRequestService.assign(serviceRequest.id, assigneeId),
+    mutationFn: () => serviceRequestService.assign(serviceRequest.id, assigneeId, serviceRequest.version),
     onSuccess: async () => {
       showToast('Responsable asignado correctamente.');
       await refresh();
     },
+    onError: recoverFromConflict,
   });
 
   const unchanged = assigneeId === '' || assigneeId === serviceRequest.assigneeId;

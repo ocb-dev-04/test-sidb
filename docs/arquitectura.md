@@ -178,6 +178,9 @@ debería filtrar en SQL.
 **Decisión.** EF Core 8 para todo: migraciones, seguimiento de cambios en comandos, `AsNoTracking` + proyecciones
 directas a DTO en consultas (solo las columnas necesarias), `AsSplitQuery` en el detalle, índices compuestos por
 los filtros más usados, `rowversion` para concurrencia optimista y reintentos ante fallas transitorias.
+El detalle de una solicitud expone esa versión (`version`, base64) y la edición, el cambio de estado y la
+asignación la reenvían: si otro usuario guardó antes, la API responde 409 `serviceRequest.concurrencyConflict`
+en lugar de pisar el cambio, y el frontend recarga los datos conservando lo que el usuario estaba escribiendo.
 Un interceptor registra los comandos que superan un umbral configurable (`Database:SlowQueryThresholdMilliseconds`)
 sin registrar valores de parámetros.
 
@@ -188,6 +191,11 @@ almacenados donde el mapeo explícito y el control total del SQL pesen más que 
 
 **Decisión.** Estados, prioridades y roles se guardan como texto (legibles en consultas y scripts). Para ordenar
 por significado de negocio (prioridad, flujo de estados) se usa una expresión `CASE`, no orden alfabético.
+Las columnas son `varchar(50)` (`ENUM_MAXIMUM_LENGTH`): los nombres de los enums son ASCII, así que `varchar` ocupa
+la mitad que `nvarchar` en la tabla y en los índices que las incluyen, y el miembro más largo (27 caracteres) deja
+holgura para valores nuevos sin migrar. `StoreEnumsAsAsciiText` lo aplica a todas las propiedades enum del modelo,
+para que ninguna configuración lo olvide; los textos libres (títulos, nombres, comentarios) siguen en `nvarchar`.
+Renombrar un miembro sí exige migrar los datos guardados.
 
 ## ADR-010 · Seguridad
 
@@ -204,7 +212,8 @@ por significado de negocio (prioridad, flujo de estados) se usa una expresión `
 Las reglas de nombres (PascalCase, camelCase, constantes en MAYÚSCULA, prefijo `I`) son **errores de compilación**
 vía `.editorconfig` (`EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`) y además las comprueba
 `NamingConventionTests`. Los números mágicos se reemplazaron por constantes con nombre. Se desactivaron CA1707 y
-CA1716 porque contradicen la propia especificación (guiones bajos en constantes, palabra `Error`).
+CA1716 porque contradicen la propia especificación (guiones bajos en constantes, palabra `Error`), y CA1860 porque
+la convención del proyecto es `!Any()` para colecciones vacías (en .NET 8 es O(1) sobre colecciones y arrays).
 
 ## ADR-012 · Datos de ejemplo cargados al arrancar, solo si faltan
 
@@ -220,6 +229,33 @@ texto y SQLite se crean desde el Excel solo si están vacíos.
 
 **Consecuencias.** Arrancar dos veces no duplica datos (cubierto por una prueba de integración). El archivo de
 texto es un dato de ejecución y no se versiona; el Excel sí, como fuente original.
+
+## ADR-013 · Carpetas por funcionalidad dentro de cada capa
+
+**Contexto.** La especificación fija las cuatro capas Onion y sus nombres, pero no cómo se organiza cada proyecto
+por dentro. La opción habitual en plantillas es agrupar por tipo técnico (`Dominio/Entities`, `Dominio/Errors`,
+`Dominio/Enums`, `Aplicacion/Commands`, `Aplicacion/Validators`).
+
+**Decisión.** Dentro de cada capa se agrupa por lo que cambia junto:
+
+- **Dominio, por agregado.** `ServiceRequests/` reúne la entidad raíz, sus entidades internas (`Comment`,
+  `StatusHistory`), sus enums, la tabla de transiciones, sus errores (`ServiceRequestErrors`) y sus eventos
+  (`Events/`). Lo mismo `Users/`, `Catalogs/`, `Notifications/` y `GovernmentEntities/`. Solo lo compartido por
+  todos va en `Common/` (`Entity`, `Result`, `Error`, `DomainGuard`).
+- **Aplicación, en *vertical slices*.** Cada caso de uso tiene su carpeta con el comando o la consulta, su
+  validador y su handler (`Features/ServiceRequests/ChangeServiceRequestStatus/`). Lo transversal (pipelines,
+  mensajería, paginación, contratos de persistencia) está en `Abstractions/`.
+- **Infraestructura y Servicios, por responsabilidad técnica** (`Persistence/Configurations`, `Repositories`,
+  `Seed`, `Controllers`): ahí el tipo de pieza sí es lo que agrupa, porque no contienen reglas de negocio.
+
+**Alternativas.** Carpetas por tipo técnico en todas las capas: más familiar para quien viene de plantillas
+*Clean Architecture*, pero un cambio de negocio (por ejemplo, una transición de estado nueva) se reparte entre
+`Entities/`, `Enums/` y `Errors/`, y entidades internas de un agregado como `Comment` aparecen al mismo nivel que
+las raíces aunque solo se crean desde ellas (`Comment.Create` es `internal`).
+
+**Consecuencias.** Un cambio de negocio se concentra en una carpeta y los límites de cada agregado se ven en el
+árbol. A cambio, no hay una carpeta única con "todas las entidades". Las dependencias entre capas siguen
+validadas por `ArchitectureTests`, que no dependen de la organización interna.
 
 ## Mejoras futuras identificadas
 
