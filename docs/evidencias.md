@@ -78,16 +78,15 @@ La misma solicitud del punto 4 vista por su solicitante: sin comentarios interno
 
 ## Pruebas e2e grabadas (Playwright)
 
-41 casos de punta a punta sobre el stack de Docker, con un vídeo por caso (dos en los de concurrencia, uno por
-navegador): sesión y expiración, filtros en la URL, diálogos y cambios sin guardar, concurrencia entre dos
-usuarios, notificaciones, usuarios, errores de pantalla, móvil y cabeceras de entrega. El índice con los vídeos
-está en [`evidencias/e2e/README.md`](evidencias/e2e/README.md).
+41 casos de punta a punta sobre el stack de Docker: sesión y expiración, filtros en la URL, diálogos y cambios
+sin guardar, concurrencia entre dos usuarios, notificaciones, usuarios, errores de pantalla, móvil y cabeceras de
+entrega.
 
 ### Vídeo resumen (4 min)
 
-[![Evidencia QA de las pruebas e2e](evidencias/11-evidencia-qa-e2e.png)](evidencias/11-evidencia-qa-e2e.mp4)
+[![Evidencia QA de las pruebas e2e](evidencias/11-evidencia-qa-e2e.png)](evidencias/evidencia-qa-e2e.mp4)
 
-[`evidencias/11-evidencia-qa-e2e.mp4`](evidencias/11-evidencia-qa-e2e.mp4) (1080p): 18 casos representativos en
+[`evidencias/evidencia-qa-e2e.mp4`](evidencias/evidencia-qa-e2e.mp4) (1080p): 18 casos representativos en
 9 capítulos, grabados con la suite en modo demostración (`E2E_DEMO=1`: cursor visible, clics y teclas marcados).
 Cada caso presenta qué se prueba, con qué usuario y el resultado esperado; al final, los 41 casos superados y los
 cuatro bugs que las pruebas destaparon con el commit que los corrige.

@@ -438,3 +438,5 @@ src/backend/src/SB.Solicitudes.Servicios/Data/*.tmp
 src/backend/src/SB.Solicitudes.Servicios/Data/entidades-gubernamentales.txt
 src/backend/src/SB.Solicitudes.Servicios/logs/
 src/backend/src/SB.Solicitudes.Servicios/simulated-mail/
+# Vídeos por caso de la suite e2e (npm run e2e:evidence): solo en local; el repo guarda el vídeo resumen
+docs/evidencias/e2e/
