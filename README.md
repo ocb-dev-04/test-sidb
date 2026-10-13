@@ -29,7 +29,7 @@ docker compose up --build
 | Servicio | URL |
 |---|---|
 | Aplicación web | http://localhost:8080 |
-| API de producción (la usa el frontend) | http://localhost:5080 |
+| API de producción (la usa el frontend a través de su proxy `/api`) | http://localhost:5080 |
 | API de desarrollo con Scalar | http://localhost:5081/scalar (Swagger UI en http://localhost:5081/swagger) |
 | Salud de la API | http://localhost:5080/health |
 | SQL Server | `localhost,1433` (usuario `sa`, clave en `.env.example`) |

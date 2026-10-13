@@ -111,10 +111,12 @@ jobs:
             -H "Authorization: Bearer $token" | jq '.totalCount')
           [ "$entities" -gt 0 ] || { echo "Sin entidades gubernamentales"; exit 1; }
           curl -fsS "$WEB_URL/" > /dev/null
+          proxied_status=$(curl -s -o /dev/null -w '%{http_code}' "$WEB_URL/api/notificaciones/no-leidas/total")
+          [ "$proxied_status" = "401" ] || { echo "El proxy /api del frontend no llega a la API ($proxied_status)"; exit 1; }
           curl -fsSL "$DEVELOPMENT_API_URL/scalar" > /dev/null
           production_status=$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/scalar")
           [ "$production_status" != "200" ] || { echo "Producción no debe exponer Scalar"; exit 1; }
-          echo "Login correcto, $entities entidades, frontend disponible, Scalar solo en desarrollo"
+          echo "Login correcto, $entities entidades, frontend y proxy /api disponibles, Scalar solo en desarrollo"
       - name: Verifica que ningún contenedor corra como root
         run: |
           for service in sqlserver api api-dev frontend; do

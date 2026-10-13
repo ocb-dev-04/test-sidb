@@ -5,15 +5,17 @@ SPA en **React 18 + TypeScript (strict) + Vite** que consume la API REST `SB.Sol
 ## Requisitos
 
 - Node.js 20 o superior (probado con Node 22) y npm.
-- La API en ejecución (por defecto en `http://localhost:5080`, con CORS habilitado para `http://localhost:5173`).
+- La API en ejecución (por defecto en `http://localhost:5080`). El servidor de Vite reenvía `/api` a esa dirección,
+  así que el navegador habla con un solo origen.
 
 ## Configuración
 
-| Variable            | Descripción                         | Valor por defecto       |
-| ------------------- | ----------------------------------- | ----------------------- |
-| `VITE_API_BASE_URL` | URL base de la API (sin `/` final). | `http://localhost:5080` |
+| Variable            | Descripción                                                                  | Valor por defecto        |
+| ------------------- | ---------------------------------------------------------------------------- | ------------------------ |
+| `API_PROXY_TARGET`  | Destino del proxy `/api` en `npm run dev` y `npm run preview`.               | `http://localhost:5080`  |
+| `VITE_API_BASE_URL` | Opcional: URL absoluta de la API (salta el proxy; se incrusta al compilar). | mismo origen que la SPA  |
 
-Copie `.env.example` a `.env` si necesita otro valor. Vite la incrusta al compilar.
+Copie `.env.example` a `.env` si necesita otro valor.
 
 ## Scripts
 
@@ -66,8 +68,10 @@ src/
 ## Docker
 
 ```bash
-docker build --build-arg VITE_API_BASE_URL=http://localhost:5080 -t sb-solicitudes-web .
-docker run -p 8080:80 sb-solicitudes-web
+docker build -t sb-solicitudes-web .
+docker run -p 8080:8080 -e API_UPSTREAM=http://host.docker.internal:5080 sb-solicitudes-web
 ```
 
-La imagen sirve la SPA con nginx (`nginx.conf`), con fallback a `index.html` para las rutas del cliente.
+La imagen sirve la SPA con nginx (`nginx.conf.template`), con fallback a `index.html` para las rutas del cliente, y
+reenvía `/api` a `API_UPSTREAM` (por defecto `http://api:8080`, el servicio de `docker-compose.yml`). La misma imagen
+sirve para cualquier entorno: la dirección de la API se fija al arrancar el contenedor, no al compilar.

@@ -1,0 +1,35 @@
+# Plantilla: la imagen de nginx sustituye ${API_UPSTREAM} al arrancar (variable de entorno del contenedor).
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+    server_tokens off;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # La API se sirve en el mismo origen que la SPA: sin CORS y con una CSP que solo permite 'self'.
+    location /api/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        # Se reemplaza (no se encadena) para que el cliente no pueda falsear su IP ante el rate limiting.
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+    }
+
+    # Los archivos generados por Vite llevan hash en el nombre: se pueden cachear de forma agresiva.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Fallback de la SPA: cualquier ruta del cliente devuelve index.html.
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri $uri/ /index.html;
+    }
+}
