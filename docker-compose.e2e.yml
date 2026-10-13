@@ -1,0 +1,7 @@
+# Ajuste solo para las pruebas e2e (Playwright): la suite inicia sesión muchas veces desde la misma IP y el
+# límite normal del login (5 por minuto) la frenaría. Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build -d sqlserver api frontend
+services:
+  api:
+    environment:
+      RateLimiting__LoginPermitsPerWindow: "1000"

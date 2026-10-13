@@ -2,6 +2,8 @@ node_modules
 dist
 coverage
 test-results
+e2e-results
+e2e-report
 .env
 .env.local
 *.log
