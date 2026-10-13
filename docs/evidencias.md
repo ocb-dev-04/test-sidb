@@ -75,3 +75,27 @@ La misma solicitud del punto 4 vista por su solicitante: sin comentarios interno
    editar y eliminar una entidad en el archivo de texto, y comprobar que en Excel no se permite.
 5. Revisar `src/backend/src/SB.Solicitudes.Servicios/simulated-mail/` (o el contenedor de la API) para ver los
    correos simulados generados.
+
+## Pruebas e2e grabadas (Playwright)
+
+41 casos de punta a punta sobre el stack de Docker, con un vídeo por caso (dos en los de concurrencia, uno por
+navegador): sesión y expiración, filtros en la URL, diálogos y cambios sin guardar, concurrencia entre dos
+usuarios, notificaciones, usuarios, errores de pantalla, móvil y cabeceras de entrega. El índice con los vídeos
+está en [`evidencias/e2e/README.md`](evidencias/e2e/README.md).
+
+Para ejecutarlos y regenerar los vídeos:
+
+```bash
+# Stack con el límite de login ampliado para la suite (la configuración normal permite 5 intentos por minuto)
+docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build -d sqlserver api frontend
+
+cd src/frontend
+npx playwright install chromium ffmpeg   # o E2E_CHANNEL=msedge para usar el Edge instalado
+npm run e2e                              # reporte HTML en e2e-report/
+npm run e2e:evidence                     # copia los vídeos a docs/evidencias/e2e
+```
+
+La suite crea sus propios datos (solicitudes, usuarios y entidades con nombres únicos) y borra las entidades que
+crea; tras ejecutarla conviene recrear la base para volver a los datos de ejemplo. En CI corre dentro del job
+*Docker (stack completo)* y publica el reporte y los vídeos como artefacto.
+

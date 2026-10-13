@@ -29,6 +29,8 @@ Copie `.env.example` a `.env` si necesita otro valor.
 | `npm run lint`      | ESLint (typescript-eslint, reglas de hooks).            |
 | `npm run typecheck` | Solo verificación de tipos.                             |
 | `npm run format`    | Formatea el código con Prettier.                        |
+| `npm run e2e`       | Pruebas e2e (Playwright) contra el stack de Docker.     |
+| `npm run e2e:evidence` | Copia los vídeos e2e a `docs/evidencias/e2e`.        |
 
 ## Usuarios de demostración
 
