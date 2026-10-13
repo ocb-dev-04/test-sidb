@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SB.Solicitudes.Dominio.Common;
 
@@ -20,6 +21,21 @@ internal static class ModelBuilderExtensions
         foreach (Type entityType in entityTypes)
         {
             modelBuilder.Entity(entityType).Ignore(nameof(IHasDomainEvents.DomainEvents));
+        }
+    }
+
+    // Los enums se guardan por nombre y sus nombres son ASCII: varchar ocupa la mitad que nvarchar en tabla e índices.
+    public static void StoreEnumsAsAsciiText(this ModelBuilder modelBuilder)
+    {
+        IEnumerable<IMutableProperty> enumProperties = modelBuilder.Model
+            .GetEntityTypes()
+            .SelectMany(entityType => entityType.GetProperties())
+            .Where(property => (Nullable.GetUnderlyingType(property.ClrType) ?? property.ClrType).IsEnum)
+            .ToArray();
+
+        foreach (IMutableProperty property in enumProperties)
+        {
+            property.SetIsUnicode(false);
         }
     }
 

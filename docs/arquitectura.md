@@ -191,8 +191,11 @@ almacenados donde el mapeo explícito y el control total del SQL pesen más que 
 
 **Decisión.** Estados, prioridades y roles se guardan como texto (legibles en consultas y scripts). Para ordenar
 por significado de negocio (prioridad, flujo de estados) se usa una expresión `CASE`, no orden alfabético.
-Las columnas son `nvarchar(50)` (`ENUM_MAXIMUM_LENGTH`): el miembro más largo tiene 27 caracteres y queda holgura
-para valores nuevos sin migrar.
+Las columnas son `varchar(50)` (`ENUM_MAXIMUM_LENGTH`): los nombres de los enums son ASCII, así que `varchar` ocupa
+la mitad que `nvarchar` en la tabla y en los índices que las incluyen, y el miembro más largo (27 caracteres) deja
+holgura para valores nuevos sin migrar. `StoreEnumsAsAsciiText` lo aplica a todas las propiedades enum del modelo,
+para que ninguna configuración lo olvide; los textos libres (títulos, nombres, comentarios) siguen en `nvarchar`.
+Renombrar un miembro sí exige migrar los datos guardados.
 
 ## ADR-010 · Seguridad
 

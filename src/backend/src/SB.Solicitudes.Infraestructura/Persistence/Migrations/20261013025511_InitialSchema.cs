@@ -60,7 +60,7 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     NombreCompleto = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Correo = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     ClaveHash = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    Rol = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Rol = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Activo = table.Column<bool>(type: "bit", nullable: false),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -78,8 +78,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     Titulo = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
                     ReferenciaEvidencia = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Prioridad = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Prioridad = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Estado = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     TipoSolicitudId = table.Column<int>(type: "int", nullable: false),
                     AreaId = table.Column<int>(type: "int", nullable: false),
                     SolicitanteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -90,7 +90,7 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     FechaResolucion = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FechaCierre = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ComentarioResolucion = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    VersionFila = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                    VersionFila = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,7 +129,7 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     SolicitudId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Texto = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    Visibilidad = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Visibilidad = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -155,8 +155,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SolicitudId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EstadoAnterior = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    EstadoNuevo = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    EstadoAnterior = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    EstadoNuevo = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Comentario = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
@@ -185,11 +185,11 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UsuarioDestinoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SolicitudId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Canal = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Tipo = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Canal = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Tipo = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Asunto = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Mensaje = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Estado = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Intentos = table.Column<int>(type: "int", nullable: false),
                     UltimoError = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),

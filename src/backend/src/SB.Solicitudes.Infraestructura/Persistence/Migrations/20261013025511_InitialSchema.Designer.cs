@@ -12,8 +12,8 @@ using SB.Solicitudes.Infraestructura.Persistence;
 namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261013011649_RequireRowVersionAndWidenEnumColumns")]
-    partial class RequireRowVersionAndWidenEnumColumns
+    [Migration("20261013025511_InitialSchema")]
+    partial class InitialSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,7 +96,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Channel")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Canal");
 
                     b.Property<DateTime>("CreatedOnUtc")
@@ -137,7 +138,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Estado");
 
                     b.Property<string>("Subject")
@@ -149,7 +151,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Tipo");
 
                     b.HasKey("Id");
@@ -192,7 +195,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Visibility")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Visibilidad");
 
                     b.HasKey("Id");
@@ -251,7 +255,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Priority")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Prioridad");
 
                     b.Property<int>("RequestTypeId")
@@ -281,7 +286,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Estado");
 
                     b.Property<string>("Title")
@@ -344,12 +350,14 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("NewStatus")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("EstadoNuevo");
 
                     b.Property<string>("PreviousStatus")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("EstadoAnterior");
 
                     b.Property<Guid>("ServiceRequestId")
@@ -401,7 +409,8 @@ namespace SB.Solicitudes.Infraestructura.Persistence.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Rol");
 
                     b.HasKey("Id");
