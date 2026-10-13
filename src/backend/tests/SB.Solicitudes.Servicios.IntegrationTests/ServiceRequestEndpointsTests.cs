@@ -147,6 +147,28 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task CommentShouldNotInvalidateVersionReadBeforeIt()
+    {
+        HttpClient requester = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_REQUESTER_EMAIL);
+        HttpClient analyst = await factory.CreateAuthenticatedClientAsync(ApiFactory.FIRST_ANALYST_EMAIL);
+        HttpResponseMessage created = await requester.PostAsJsonAsync(
+            SOLICITUDES_ROUTE,
+            new CreateServiceRequestCommand(NEW_TITLE, NEW_DESCRIPTION, ServiceRequestPriority.Medium, SUPPORT_TYPE_ID, FINANCE_AREA_ID, null),
+            ApiFactory.JSON_OPTIONS);
+        Guid id = (await created.Content.ReadFromJsonAsync<ServiceRequestCreatedResponse>(ApiFactory.JSON_OPTIONS))!.Id;
+        string detailRoute = $"{SOLICITUDES_ROUTE}/{id}";
+        byte[] readVersion = (await GetJsonAsync<ServiceRequestDetailResponse>(analyst, detailRoute)).Version;
+        AddCommentRequest comment = new(RESOLUTION_COMMENT, CommentVisibility.Public);
+        ChangeStatusRequest change = new(ServiceRequestStatus.InAnalysis, readVersion, null);
+
+        HttpResponseMessage commented = await requester.PostAsJsonAsync($"{detailRoute}/comentarios", comment, ApiFactory.JSON_OPTIONS);
+        HttpResponseMessage changed = await analyst.PatchAsJsonAsync($"{detailRoute}/estado", change, ApiFactory.JSON_OPTIONS);
+
+        commented.StatusCode.ShouldBe(HttpStatusCode.Created);
+        changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
     public async Task AnalystShouldNotSeeRequestsAssignedToAnotherAnalyst()
     {
         HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);

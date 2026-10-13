@@ -220,4 +220,15 @@ public sealed class ServiceRequestTests
         comment.Visibility.ShouldBe(CommentVisibility.Internal);
         serviceRequest.DomainEvents.ShouldHaveSingleItem().ShouldBeOfType<ServiceRequestCommentAddedDomainEvent>();
     }
+
+    [Fact]
+    public void AddCommentShouldNotModifyTheServiceRequestItself()
+    {
+        ServiceRequest serviceRequest = ServiceRequestBuilder.Registered();
+        DateTime? updatedBefore = serviceRequest.UpdatedOnUtc;
+
+        serviceRequest.AddComment(ServiceRequestBuilder.ANALYST_ID, RESOLUTION_COMMENT, CommentVisibility.Public, LATER_UTC);
+
+        serviceRequest.UpdatedOnUtc.ShouldBe(updatedBefore);
+    }
 }

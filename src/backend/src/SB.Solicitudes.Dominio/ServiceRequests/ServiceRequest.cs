@@ -205,9 +205,9 @@ public sealed class ServiceRequest : Entity<Guid>
 
     public Comment AddComment(Guid authorId, string text, CommentVisibility visibility, DateTime utcNow)
     {
+        // Comentar no modifica la solicitud: así no choca con la versión de fila de quien la edita o comenta a la vez.
         Comment comment = Comment.Create(Id, authorId, text, visibility, utcNow);
         _comments.Add(comment);
-        UpdatedOnUtc = utcNow;
 
         RaiseDomainEvent(new ServiceRequestCommentAddedDomainEvent(Id, comment.Id, authorId, visibility, utcNow));
         return comment;
