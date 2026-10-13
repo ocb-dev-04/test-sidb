@@ -27,6 +27,7 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
 {
     private const string SOLICITUDES_ROUTE = "/api/solicitudes";
     private const string ERROR_CODE = "code";
+    private const string TRACE_ID = "traceId";
     private const string RESOLUTION_COMMENT = "Se instaló el software solicitado.";
     private const string NEW_TITLE = "Instalar Power BI Desktop";
     private const string NEW_DESCRIPTION = "Necesito Power BI para los tableros del área.";
@@ -177,7 +178,7 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
     }
 
     [Fact]
-    public async Task ListShouldValidatePageSize()
+    public async Task ListShouldReturnValidationProblemWithTraceIdWhenPageSizeIsOversized()
     {
         HttpClient administrator = await factory.CreateAuthenticatedClientAsync(ApiFactory.ADMINISTRATOR_EMAIL);
 
@@ -186,6 +187,8 @@ public sealed class ServiceRequestEndpointsTests(ApiFactory factory)
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         ValidationProblemDetails? problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
         problem!.Errors.ShouldContainKey("pageSize");
+        problem.Extensions.ShouldContainKey(TRACE_ID);
+        problem.Extensions.ShouldContainKey(ERROR_CODE);
     }
 
     [Fact]
