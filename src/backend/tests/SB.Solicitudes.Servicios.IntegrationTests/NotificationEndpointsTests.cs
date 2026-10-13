@@ -36,6 +36,19 @@ public sealed class NotificationEndpointsTests(ApiFactory factory)
         (await UnreadCountAsync(administrator)).ShouldBe(administratorUnreadBefore);
     }
 
+    [Fact]
+    public async Task CreatingRequestShouldNotifyRequesterOnceInApp()
+    {
+        HttpClient requester = await factory.CreateAuthenticatedClientAsync(ApiFactory.SECOND_REQUESTER_EMAIL);
+        int unreadBefore = await UnreadCountAsync(requester);
+        CreateServiceRequestCommand command = new(TITLE, DESCRIPTION, ServiceRequestPriority.Low, SUPPORT_TYPE_ID, FINANCE_AREA_ID, null);
+
+        HttpResponseMessage created = await requester.PostAsJsonAsync("/api/solicitudes", command, ApiFactory.JSON_OPTIONS);
+
+        created.EnsureSuccessStatusCode();
+        (await UnreadCountAsync(requester)).ShouldBe(unreadBefore + 1);
+    }
+
     private static async Task<int> UnreadCountAsync(HttpClient client)
         => await client.GetFromJsonAsync<int>(UNREAD_COUNT_ROUTE, ApiFactory.JSON_OPTIONS);
 }

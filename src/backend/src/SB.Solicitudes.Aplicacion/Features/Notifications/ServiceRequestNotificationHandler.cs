@@ -118,7 +118,7 @@ internal sealed class ServiceRequestNotificationHandler(
             .ToArray();
 
         Notification[] notifications = recipients
-            .SelectMany(recipientId => options.Value.Channels.Select(channel =>
+            .SelectMany(recipientId => options.Value.EffectiveChannels.Select(channel =>
                 Notification.Create(recipientId, serviceRequest.Id, channel, type, subject, message, utcNow)))
             .ToArray();
 
